@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Login & Registration – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 1040px; margin: 20px auto 40px;">
+  
+  <div style="background-color: #ffffff; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: var(--shadow-xl); overflow: hidden; display: grid; grid-template-columns: 1.15fr 1fr; min-height: 580px;">
+    
+    <!-- Left Hero Column: Village Illustration & Civic Mission -->
+    <div style="background: linear-gradient(145deg, #166534 0%, #15803d 70%, #0f4c25 100%); color: #ffffff; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;">
+      
+      <!-- Subtle background radial glow -->
+      <div style="position: absolute; top: -80px; left: -80px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%); border-radius: 50%;"></div>
+
+      <!-- Top Branding -->
+      <div style="position: relative; z-index: 1;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <img src="{{ url_for('static', filename='images/emblem.svg') }}" alt="Grama Seva Emblem" style="width: 52px; height: 52px; background: #ffffff; border-radius: 50%; padding: 3px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+          <div>
+            <h2 style="color: #ffffff; font-size: 1.5rem; font-weight: 700; margin: 0; line-height: 1.2;">GRAMA SEVA</h2>
+            <p style="color: #fef08a; font-size: 0.85rem; font-weight: 600; margin: 0;">Your Village, Your Voice • ನಿಮ್ಮ ಗ್ರಾಮ, ನಿಮ್ಮ ಧ್ವನಿ</p>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.12); border-left: 4px solid var(--accent-saffron); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 12px 16px; margin: 20px 0;">
+          <h3 style="color: #ffffff; font-size: 1.15rem; font-weight: 600; margin-bottom: 4px;">"Making Our Villages Better Together."</h3>
+          <p style="color: #dcfce7; font-size: 0.84rem; line-height: 1.5; margin: 0;">
+            Report local village problems directly to Gram Panchayat officials, track live progress, and bring positive changes to our community.
+          </p>
+        </div>
+      </div>
+
+      <!-- Center Vector Graphic -->
+      <div style="text-align: center; margin: 10px 0; position: relative; z-index: 1;">
+        <img src="{{ url_for('static', filename='images/village-hero.svg') }}" alt="Rural Village Illustration" style="max-height: 200px; margin: 0 auto; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+      </div>
+
+      <!-- Bottom Feature Badges -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.78rem; color: #dcfce7; position: relative; z-index: 1;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-bolt" style="color: var(--accent-saffron);"></i>
+          <span>Instant Complaint ID</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-bell" style="color: var(--accent-saffron);"></i>
+          <span>SMS & Online Alerts</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-school" style="color: var(--accent-saffron);"></i>
+          <span>Govt School Cell</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-shield-check" style="color: var(--accent-saffron);"></i>
+          <span>Official Panchayat Portal</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Login / Register Form Container -->
+    <div style="padding: 36px 36px 30px; display: flex; flex-direction: column; justify-content: center;">
+      
+      <!-- Top Mode Selector Pills -->
+      <div style="display: flex; background: #f1f5f9; border-radius: 30px; padding: 4px; margin-bottom: 24px; border: 1px solid var(--border-color);">
+        <button type="button" id="tabLoginBtn" class="btn btn-sm {% if not is_register and not is_forgot %}btn-primary{% else %}btn-outline{% endif %}" style="flex: 1; border-radius: 20px; border: none; font-size: 0.88rem;" onclick="switchAuthTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Citizen Login
+        </button>
+        <button type="button" id="tabRegisterBtn" class="btn btn-sm {% if is_register %}btn-primary{% else %}btn-outline{% endif %}" style="flex: 1; border-radius: 20px; border: none; font-size: 0.88rem;" onclick="switchAuthTab('register')">
+          <i class="fa-solid fa-user-plus"></i> New Account
+        </button>
+      </div>
+
+      <!-- 1. LOGIN FORM -->
+      <div id="loginFormSection" style="display: {% if not is_register and not is_forgot %}block{% else %}none{% endif %};">
+        <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Citizen Login</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+          Sign in using your registered mobile number or username
+        </p>
+
+        <form action="{{ url_for('login') }}" method="POST">
+          <div class="form-group">
+            <label class="form-label" for="login_identifier">Mobile Number / Username <span class="required-star">*</span></label>
+            <div style="position: relative;">
+              <span style="position: absolute; left: 14px; top: 12px; color: #94a3b8;"><i class="fa-solid fa-user"></i></span>
+              <input type="text" id="login_identifier" name="identifier" class="form-control" style="padding-left: 40px;" placeholder="e.g. 9876543210 or citizen" value="{{ identifier or '' }}" required autofocus>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" for="login_password" style="margin-bottom: 0;">Password <span class="required-star">*</span></label>
+              <a href="javascript:void(0)" onclick="switchAuthTab('forgot')" style="font-size: 0.8rem; color: var(--primary); font-weight: 500;">Forgot Password?</a>
+            </div>
+            <div style="position: relative;">
+              <span style="position: absolute; left: 14px; top: 12px; color: #94a3b8;"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" id="login_password" name="password" class="form-control" style="padding-left: 40px; padding-right: 42px;" placeholder="Enter your password" required>
+              <button type="button" class="password-toggle-btn" data-target="login_password" style="position: absolute; right: 12px; top: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px;" title="Show/Hide Password">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 8px;">
+            <i class="fa-solid fa-right-to-bracket"></i> Login to Portal
+          </button>
+        </form>
+
+        <!-- Quick Demo Fill Buttons for Testing -->
+        <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: var(--radius-md);">
+          <div style="font-size: 0.76rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 8px;">
+            <i class="fa-solid fa-flask"></i> Quick Demo Logins (Click to Auto-fill)
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="quickFillCitizen()" style="font-size: 0.78rem;">
+              👤 Citizen: <strong>citizen</strong> / citizen123
+            </button>
+            <a href="{{ url_for('admin_login') }}" class="btn btn-outline-primary btn-sm" style="font-size: 0.78rem;">
+              🛡️ Admin Officer Portal
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 2. REGISTRATION FORM -->
+      <div id="registerFormSection" style="display: {% if is_register %}block{% else %}none{% endif %};">
+        <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Create New Citizen Account</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+          Register to report village problems and receive official updates
+        </p>
+
+        <form action="{{ url_for('register') }}" method="POST">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label">Full Name <span class="required-star">*</span></label>
+            <input type="text" name="full_name" class="form-control" placeholder="e.g. Manjunatha Gowda" value="{{ form_data.full_name if form_data else '' }}" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">10-Digit Mobile Number <span class="required-star">*</span></label>
+              <input type="tel" name="mobile" pattern="[0-9]{10}" class="form-control" placeholder="9876543210" value="{{ form_data.mobile if form_data else '' }}" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">Email ID (Optional)</label>
+              <input type="email" name="email" class="form-control" placeholder="citizen@example.com" value="{{ form_data.email if form_data else '' }}">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">Village / Habitation <span class="required-star">*</span></label>
+              <input type="text" name="village" list="villageList" class="form-control" placeholder="Select or type village name..." value="{{ form_data.village if form_data else (villages[0] if villages else '') }}" required>
+              <datalist id="villageList">
+                {% for v in villages %}
+                  <option value="{{ v }}">{{ v }}</option>
+                {% endfor %}
+              </datalist>
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">Ward No. <span class="required-star">*</span></label>
+              <select name="ward_no" class="form-select" required>
+                <option value="Ward 1">Ward 1</option>
+                <option value="Ward 2" selected>Ward 2</option>
+                <option value="Ward 3">Ward 3</option>
+                <option value="Ward 4">Ward 4</option>
+                <option value="Ward 5">Ward 5</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label">Password <span class="required-star">*</span></label>
+              <div style="position: relative;">
+                <input type="password" id="reg_password" name="password" class="form-control" placeholder="At least 6 chars" required minlength="6">
+                <button type="button" class="password-toggle-btn" data-target="reg_password" style="position: absolute; right: 10px; top: 10px; background: none; border: none; color: #94a3b8; cursor: pointer;">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label">Confirm Password <span class="required-star">*</span></label>
+              <input type="password" id="reg_confirm_password" name="confirm_password" class="form-control" placeholder="Confirm password" required minlength="6">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px;">
+            <i class="fa-solid fa-user-check"></i> Register Citizen Account
+          </button>
+        </form>
+      </div>
+
+      <!-- 3. FORGOT PASSWORD PROTOTYPE FORM -->
+      <div id="forgotFormSection" style="display: {% if is_forgot %}block{% else %}none{% endif %};">
+        <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Reset Password</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+          Enter your 10-digit registered mobile number to receive a temporary recovery OTP.
+        </p>
+
+        <form action="{{ url_for('forgot_password') }}" method="POST">
+          <div class="form-group">
+            <label class="form-label">Registered Mobile Number <span class="required-star">*</span></label>
+            <div style="position: relative;">
+              <span style="position: absolute; left: 14px; top: 12px; color: #94a3b8;"><i class="fa-solid fa-mobile-screen"></i></span>
+              <input type="tel" name="mobile" pattern="[0-9]{10}" class="form-control" style="padding-left: 40px;" placeholder="Enter 10-digit mobile number" required>
+            </div>
+            <span class="form-hint">A temporary reset link / verification code will be sent to this number.</span>
+          </div>
+
+          <button type="submit" class="btn btn-saffron" style="width: 100%; padding: 12px; font-size: 0.95rem; margin-top: 10px;">
+            <i class="fa-solid fa-paper-plane"></i> Send Password Reset OTP
+          </button>
+
+          <div style="text-align: center; margin-top: 16px;">
+            <a href="javascript:void(0)" onclick="switchAuthTab('login')" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">
+              <i class="fa-solid fa-arrow-left"></i> Back to Login
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Admin Portal Link Footer -->
+      <div style="margin-top: 24px; text-align: center; font-size: 0.82rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 14px;">
+        Are you an authorized Gram Panchayat Officer or PDO?
+        <br>
+        <a href="{{ url_for('admin_login') }}" style="color: var(--primary); font-weight: 700; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">
+          <i class="fa-solid fa-user-shield"></i> Access Administrator Portal Here &rarr;
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function switchAuthTab(mode) {
+    const loginSec = document.getElementById('loginFormSection');
+    const regSec = document.getElementById('registerFormSection');
+    const forgotSec = document.getElementById('forgotFormSection');
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabRegBtn = document.getElementById('tabRegisterBtn');
+
+    if (mode === 'login') {
+      loginSec.style.display = 'block';
+      regSec.style.display = 'none';
+      forgotSec.style.display = 'none';
+      tabLoginBtn.className = 'btn btn-sm btn-primary';
+      tabRegBtn.className = 'btn btn-sm btn-outline';
+    } else if (mode === 'register') {
+      loginSec.style.display = 'none';
+      regSec.style.display = 'block';
+      forgotSec.style.display = 'none';
+      tabLoginBtn.className = 'btn btn-sm btn-outline';
+      tabRegBtn.className = 'btn btn-sm btn-primary';
+    } else if (mode === 'forgot') {
+      loginSec.style.display = 'none';
+      regSec.style.display = 'none';
+      forgotSec.style.display = 'block';
+      tabLoginBtn.className = 'btn btn-sm btn-outline';
+      tabRegBtn.className = 'btn btn-sm btn-outline';
+    }
+  }
+
+  function quickFillCitizen() {
+    document.getElementById('login_identifier').value = 'citizen';
+    document.getElementById('login_password').value = 'citizen123';
+  }
+</script>
+{% endblock %}

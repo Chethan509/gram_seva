@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 850px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-bell" style="color: var(--primary);"></i>
+        {% if current_lang == 'kn' %}ಸೂಚನೆಗಳು ಮತ್ತು ಸಂದೇಶಗಳು{% else %}Grievance Notifications{% endif %}
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
+        Live real-time alerts generated from Gram Panchayat department progress
+      </p>
+    </div>
+
+    {% if notifications %}
+      <form action="{{ url_for('clear_notifications') }}" method="POST" onsubmit="return confirm('Clear all notifications?');">
+        <button type="submit" class="btn btn-outline btn-sm">
+          <i class="fa-solid fa-trash-can"></i> Clear All
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if notifications %}
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      {% for n in notifications %}
+        <div class="civic-card" style="padding: 18px 22px; display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid {% if n['type'] == 'success' %}#16a34a{% elif n['type'] == 'warning' %}#f59e0b{% elif n['type'] == 'error' %}#dc2626{% else %}#2563eb{% endif %};">
+          
+          <!-- Icon -->
+          <div style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; background: {% if n['type'] == 'success' %}#f0fdf4; color: #16a34a;{% elif n['type'] == 'warning' %}#fffbeb; color: #f59e0b;{% elif n['type'] == 'error' %}#fef2f2; color: #dc2626;{% else %}#eff6ff; color: #2563eb;{% endif %}">
+            {% if n['type'] == 'success' %}
+              <i class="fa-solid fa-circle-check"></i>
+            {% elif n['type'] == 'warning' %}
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            {% elif n['type'] == 'error' %}
+              <i class="fa-solid fa-circle-xmark"></i>
+            {% else %}
+              <i class="fa-solid fa-bell"></i>
+            {% endif %}
+          </div>
+
+          <!-- Notification Text & Action -->
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px;">
+              <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+                {{ n['title'] }}
+              </h3>
+              <span style="font-size: 0.76rem; color: #94a3b8; white-space: nowrap;">
+                <i class="fa-regular fa-clock"></i> {{ n['created_at'][:16] }}
+              </span>
+            </div>
+
+            <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin: 0 0 10px;">
+              {{ n['message'] }}
+            </p>
+
+            {% if n['ref_complaint_id'] %}
+              <a href="{{ url_for('track', complaint_id=n['ref_complaint_id']) }}" class="btn btn-outline-primary btn-sm" style="font-size: 0.78rem; padding: 4px 10px;">
+                <i class="fa-solid fa-arrow-right"></i> View Tracking Status
+              </a>
+            {% endif %}
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="civic-card" style="text-align: center; padding: 50px 20px;">
+      <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 12px;">
+        <i class="fa-regular fa-bell-slash"></i>
+      </div>
+      <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 6px;">No Notifications</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        You're all caught up! You will receive notifications here whenever Gram Panchayat officers update your complaints.
+      </p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

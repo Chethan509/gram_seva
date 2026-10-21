@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 20px auto 40px;">
+  
+  <div class="civic-card">
+    <div class="civic-card-header">
+      <div class="civic-card-title">
+        <i class="fa-solid fa-id-card" style="color: var(--primary);"></i>
+        Citizen Profile Information
+      </div>
+      <span class="status-pill status-submitted" style="font-size: 0.75rem;">Verified Citizen</span>
+    </div>
+
+    <!-- Avatar Header -->
+    <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border-color);">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700;">
+        {{ g.user['full_name'][0] }}
+      </div>
+      <div>
+        <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin: 0;">{{ g.user['full_name'] }}</h2>
+        <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2px;">
+          <i class="fa-solid fa-phone"></i> {{ g.user['mobile'] }} • Registered Citizen
+        </div>
+      </div>
+    </div>
+
+    <form action="{{ url_for('profile') }}" method="POST">
+      <div class="form-group">
+        <label class="form-label">Full Name <span class="required-star">*</span></label>
+        <input type="text" name="full_name" class="form-control" value="{{ g.user['full_name'] }}" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">Mobile Number (Login ID)</label>
+          <input type="text" class="form-control" value="{{ g.user['mobile'] }}" readonly style="background-color: #f1f5f9; cursor: not-allowed;">
+          <span class="form-hint">Mobile number is permanent civic ID.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email ID</label>
+          <input type="email" name="email" class="form-control" value="{{ g.user['email'] or '' }}" placeholder="name@domain.com">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">Village / Habitation <span class="required-star">*</span></label>
+          <input type="text" name="village" class="form-control" value="{{ g.user['village'] }}" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ward Number <span class="required-star">*</span></label>
+          <select name="ward_no" class="form-select" required>
+            <option value="Ward 1" {% if g.user['ward_no'] == 'Ward 1' %}selected{% endif %}>Ward 1</option>
+            <option value="Ward 2" {% if g.user['ward_no'] == 'Ward 2' %}selected{% endif %}>Ward 2</option>
+            <option value="Ward 3" {% if g.user['ward_no'] == 'Ward 3' %}selected{% endif %}>Ward 3</option>
+            <option value="Ward 4" {% if g.user['ward_no'] == 'Ward 4' %}selected{% endif %}>Ward 4</option>
+            <option value="Ward 5" {% if g.user['ward_no'] == 'Ward 5' %}selected{% endif %}>Ward 5</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 18px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">
+          <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+        </button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

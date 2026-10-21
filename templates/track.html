@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Complaint Status – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div class="tracker-container">
+  
+  <!-- Search Bar -->
+  <div style="margin-bottom: 24px; text-align: center;">
+    <h1 style="font-size: 1.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+      <i class="fa-solid fa-location-crosshairs" style="color: var(--primary);"></i>
+      {% if current_lang == 'kn' %}ದೂರು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ{% else %}Track Complaint Status{% endif %}
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Enter your 13-digit Complaint ID (e.g. <strong>GS-2026-00101</strong>) to view real-time department action
+    </p>
+
+    <form action="{{ url_for('track') }}" method="GET" class="tracking-search-bar" style="max-width: 650px; margin: 18px auto 0;">
+      <div style="position: relative; flex: 1;">
+        <span style="position: absolute; left: 16px; top: 13px; color: #94a3b8;"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" name="complaint_id" class="form-control" style="padding-left: 44px; font-family: monospace; font-size: 1.05rem;" placeholder="Enter Complaint ID (e.g. GS-2026-00101)" value="{{ search_id or '' }}" required autofocus>
+      </div>
+      <button type="submit" class="btn btn-primary" style="padding: 0 24px;">
+        <i class="fa-solid fa-arrow-right"></i> Track
+      </button>
+    </form>
+  </div>
+
+  {% if complaint %}
+    
+    <!-- MAIN COMPLAINT CARD -->
+    <div class="civic-card" style="margin-bottom: 24px;">
+      
+      <!-- Top Bar: ID, Date, Priority -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <span style="font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Official Grievance Record</span>
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 2px;">
+            <span style="font-family: monospace; font-size: 1.5rem; font-weight: 800; color: var(--primary);">
+              {{ complaint['complaint_id'] }}
+            </span>
+            {% set status_class = complaint['status'].lower().replace(' ', '-') %}
+            <span class="status-pill status-{{ status_class }}" style="font-size: 0.85rem; padding: 4px 14px;">
+              {{ complaint['status'] }}
+            </span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="priority-pill priority-{{ complaint['priority'].lower() }}">
+            Priority: {{ complaint['priority'] }}
+          </span>
+          <span style="font-size: 0.82rem; color: #64748b;">
+            <i class="fa-regular fa-calendar"></i> Filed on: {{ complaint['created_at'][:16] }}
+          </span>
+        </div>
+      </div>
+
+      <!-- VISUAL PROGRESS STEPPER -->
+      {% if complaint['status'] == 'Rejected' %}
+        <div class="tracking-rejected-banner">
+          <div class="rejected-icon">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+          <div>
+            <h3 style="color: #991b1b; font-size: 1.15rem; margin-bottom: 4px;">Complaint Closed / Rejected</h3>
+            <p style="color: #7f1d1d; font-size: 0.9rem; margin: 0; line-height: 1.5;">
+              <strong>Official Reason:</strong> {{ complaint['officer_remarks'] or 'This matter falls outside the executive jurisdiction of the Gram Panchayat or has been referred to relevant civil authorities.' }}
+            </p>
+          </div>
+        </div>
+      {% else %}
+        <!-- 5 Stages Progress Stepper -->
+        {% set status_num = 1 %}
+        {% if complaint['status'] == 'Submitted' %}{% set status_num = 1 %}
+        {% elif complaint['status'] == 'Under Review' %}{% set status_num = 2 %}
+        {% elif complaint['status'] == 'Assigned' %}{% set status_num = 3 %}
+        {% elif complaint['status'] == 'In Progress' %}{% set status_num = 4 %}
+        {% elif complaint['status'] == 'Resolved' %}{% set status_num = 5 %}
+        {% endif %}
+
+        <div style="padding: 10px 0 30px;">
+          <div class="progress-stepper">
+            
+            <!-- Dynamic Progress Fill Bar -->
+            <div class="stepper-progress-fill" style="width: {{ (status_num - 1) * 25 }}%;"></div>
+
+            <!-- Step 1: Submitted -->
+            <div class="step-node {% if status_num >= 1 %}completed{% endif %}">
+              <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+              <div class="step-label">1. Submitted</div>
+              <div class="step-date">Registered</div>
+            </div>
+
+            <!-- Step 2: Under Review -->
+            <div class="step-node {% if status_num > 2 %}completed{% elif status_num == 2 %}active{% endif %}">
+              <div class="step-circle">
+                {% if status_num > 2 %}<i class="fa-solid fa-check"></i>{% else %}2{% endif %}
+              </div>
+              <div class="step-label">2. Under Review</div>
+              <div class="step-date">PDO Verification</div>
+            </div>
+
+            <!-- Step 3: Assigned -->
+            <div class="step-node {% if status_num > 3 %}completed{% elif status_num == 3 %}active{% endif %}">
+              <div class="step-circle">
+                {% if status_num > 3 %}<i class="fa-solid fa-check"></i>{% else %}3{% endif %}
+              </div>
+              <div class="step-label">3. Assigned</div>
+              <div class="step-date">{{ complaint['dept_name_en'] or 'Department' }}</div>
+            </div>
+
+            <!-- Step 4: Work in Progress -->
+            <div class="step-node {% if status_num > 4 %}completed{% elif status_num == 4 %}active{% endif %}">
+              <div class="step-circle">
+                {% if status_num > 4 %}<i class="fa-solid fa-check"></i>{% else %}4{% endif %}
+              </div>
+              <div class="step-label">4. In Progress</div>
+              <div class="step-date">Field Execution</div>
+            </div>
+
+            <!-- Step 5: Resolved -->
+            <div class="step-node {% if status_num == 5 %}completed{% endif %}">
+              <div class="step-circle">
+                {% if status_num == 5 %}<i class="fa-solid fa-circle-check"></i>{% else %}5{% endif %}
+              </div>
+              <div class="step-label">5. Resolved</div>
+              <div class="step-date">Complete</div>
+            </div>
+
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Complaint Core Details Grid -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 10px;">
+        
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
+            {{ complaint['title'] }}
+          </h2>
+
+          <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 18px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
+              Citizen's Problem Description
+            </div>
+            <p style="font-size: 0.92rem; color: #334155; line-height: 1.6; margin: 0;">
+              {{ complaint['description'] }}
+            </p>
+          </div>
+
+          <!-- If School Issue, Show Details Box -->
+          {% if complaint['school_name'] %}
+            <div class="school-special-box" style="margin: 0 0 18px;">
+              <div class="box-tag"><i class="fa-solid fa-school"></i> School Infrastructure Report</div>
+              <div style="font-size: 0.92rem; color: #4c1d95;">
+                <div><strong>School Name:</strong> {{ complaint['school_name'] }}</div>
+                {% if complaint['school_location'] %}<div><strong>Location:</strong> {{ complaint['school_location'] }}</div>{% endif %}
+                {% if complaint['school_infra_type'] %}<div><strong>Defect Type:</strong> {{ complaint['school_infra_type'] }}</div>{% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Officer's Remarks Banner (If Available) -->
+          {% if complaint['officer_remarks'] %}
+            <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid var(--primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 18px;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 4px;">
+                <i class="fa-solid fa-user-shield"></i> Officer's Latest Remarks
+              </div>
+              <p style="font-size: 0.9rem; color: #14532d; margin: 0; line-height: 1.5;">
+                {{ complaint['officer_remarks'] }}
+              </p>
+            </div>
+          {% endif %}
+
+          <!-- Resolution Details (If Resolved) -->
+          {% if complaint['resolution_details'] %}
+            <div style="background-color: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); padding: 14px 18px;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: #15803d; text-transform: uppercase; margin-bottom: 4px;">
+                <i class="fa-solid fa-check-double"></i> Resolution Work Report
+              </div>
+              <p style="font-size: 0.9rem; color: #14532d; margin: 0; line-height: 1.5;">
+                {{ complaint['resolution_details'] }}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Right Side: Metadata & Photo -->
+        <div>
+          <!-- Photo Evidence -->
+          <div style="margin-bottom: 20px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">
+              <i class="fa-solid fa-camera"></i> Site Photo Evidence
+            </div>
+            {% if complaint['photo_url'] %}
+              <div style="border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                <img src="{{ complaint['photo_url'] }}" alt="Site Evidence Photo" style="width: 100%; max-height: 220px; object-fit: cover;">
+              </div>
+            {% else %}
+              <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: var(--radius-md); padding: 24px; text-align: center; color: #94a3b8; font-size: 0.85rem;">
+                <i class="fa-solid fa-image" style="font-size: 1.8rem; margin-bottom: 6px; display: block;"></i>
+                No photograph uploaded for this complaint
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Metadata Box -->
+          <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; font-size: 0.85rem;">
+            <div style="margin-bottom: 10px;">
+              <span style="color: #64748b; display: block; font-size: 0.76rem;">Category</span>
+              <strong style="color: var(--text-main);">
+                <i class="{{ complaint['cat_icon'] }}" style="color: {{ complaint['cat_color'] }};"></i>
+                {{ complaint['cat_name_en'] }}
+              </strong>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <span style="color: #64748b; display: block; font-size: 0.76rem;">Location & Landmark</span>
+              <strong style="color: var(--text-main);">{{ complaint['landmark'] }}, {{ complaint['ward_no'] }}</strong>
+              <div style="color: #64748b; font-size: 0.78rem;">{{ complaint['village'] }}</div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <span style="color: #64748b; display: block; font-size: 0.76rem;">Assigned Department</span>
+              <strong style="color: var(--primary);">{{ complaint['dept_name_en'] or 'Panchayat Verification Cell' }}</strong>
+              {% if complaint['officer_name'] %}
+                <div style="color: #475569; font-size: 0.78rem;">Officer: {{ complaint['officer_name'] }} ({{ complaint['officer_contact'] }})</div>
+              {% endif %}
+            </div>
+
+            <div>
+              <span style="color: #64748b; display: block; font-size: 0.76rem;">Complainant</span>
+              <strong style="color: var(--text-main);">{{ complaint['citizen_name'] }}</strong>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- STATUS AUDIT TRAIL / TIMELINE HISTORY -->
+    <div class="civic-card">
+      <div class="civic-card-header">
+        <div class="civic-card-title">
+          <i class="fa-solid fa-list-timeline" style="color: var(--primary);"></i>
+          Official Status Audit Trail & History
+        </div>
+      </div>
+
+      <div class="timeline-list">
+        {% for h in history %}
+          <div class="timeline-item">
+            <div class="timeline-bullet">
+              <i class="fa-solid fa-circle" style="font-size: 6px; color: var(--primary);"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="timeline-title">
+                  {% set st_class = h['status'].lower().replace(' ', '-') %}
+                  <span class="status-pill status-{{ st_class }}" style="font-size: 0.75rem; padding: 2px 8px;">{{ h['status'] }}</span>
+                  <span style="margin-left: 8px; font-size: 0.82rem; color: #64748b;">Action by: <strong>{{ h['action_by'] }}</strong></span>
+                </span>
+                <span class="timeline-time"><i class="fa-regular fa-clock"></i> {{ h['created_at'] }}</span>
+              </div>
+              <div class="timeline-remarks">
+                {{ h['remarks'] }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  {% elif search_id %}
+    <div class="civic-card" style="text-align: center; padding: 40px;">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #f59e0b; margin-bottom: 12px;"></i>
+      <h3 style="font-size: 1.25rem;">Complaint ID Not Found</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px;">
+        No grievance matching "<strong>{{ search_id }}</strong>" was found in Shivapura Gram Panchayat records.
+      </p>
+      <a href="{{ url_for('track') }}" class="btn btn-outline btn-sm">Try Another Search</a>
+    </div>
+  {% else %}
+    <!-- Help Box when search is empty -->
+    <div class="civic-card" style="text-align: center; padding: 50px 20px;">
+      <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 14px;">
+        <i class="fa-solid fa-satellite-dish"></i>
+      </div>
+      <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+        Track Your Village Grievance in Real-Time
+      </h3>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 20px; font-size: 0.9rem;">
+        Enter your complaint tracking number above. Example: Click below to view a live demo tracking record:
+      </p>
+      <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+        <a href="{{ url_for('track', complaint_id='GS-2026-00101') }}" class="btn btn-outline-primary btn-sm">
+          🔍 Track Water Pipeline Leak (GS-2026-00101)
+        </a>
+        <a href="{{ url_for('track', complaint_id='GS-2026-00102') }}" class="btn btn-outline-primary btn-sm">
+          🏫 Track School Roof Repair (GS-2026-00102)
+        </a>
+        <a href="{{ url_for('track', complaint_id='GS-2026-00103') }}" class="btn btn-outline-primary btn-sm">
+          💡 Track Streetlights (GS-2026-00103)
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

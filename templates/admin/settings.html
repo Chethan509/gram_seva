@@ -1,0 +1,130 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_title %}Gram Panchayat & Village Configuration Settings{% endblock %}
+
+{% block admin_content %}
+<div style="max-width: 900px; margin: 0 auto;">
+  
+  <!-- Live Preview Header Card -->
+  <div class="civic-card" style="background: linear-gradient(135deg, #166534 0%, #15803d 100%); color: #ffffff; margin-bottom: 24px; padding: 22px 28px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <img src="{{ url_for('static', filename='images/emblem.svg') }}" alt="Emblem" style="width: 50px; height: 50px; background: #ffffff; border-radius: 50%; padding: 2px;">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #fef08a; font-weight: 700;">Live Branding Preview</span>
+          <h2 style="font-size: 1.45rem; font-weight: 700; color: #ffffff; margin: 2px 0;">{{ gp.panchayat_name }}</h2>
+          <div style="font-size: 0.88rem; color: #dcfce7; font-weight: 500;">
+            {{ gp.panchayat_name_kn }} • {{ gp.district }}
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: right; font-size: 0.8rem; color: #dcfce7;">
+        <div><i class="fa-solid fa-phone"></i> Helpline: <strong>{{ gp.helpline }}</strong></div>
+        <div style="margin-top: 3px;"><i class="fa-solid fa-envelope"></i> {{ gp.contact_email }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Form -->
+  <div class="civic-card">
+    <div class="civic-card-header">
+      <div class="civic-card-title">
+        <i class="fa-solid fa-sliders" style="color: var(--primary);"></i>
+        Configure Gram Panchayat Identity & Covered Villages
+      </div>
+      <span class="status-pill status-submitted" style="font-size: 0.74rem;">Global Settings</span>
+    </div>
+
+    <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 22px;">
+      Update the official Gram Panchayat name, district, contact numbers, and covered villages. All changes will immediately update the header, footer, registration dropdowns, and dashboard across the entire portal in real time.
+    </p>
+
+    <form action="{{ url_for('admin_settings') }}" method="POST">
+      
+      <!-- Gram Panchayat Names (English & Kannada) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="panchayat_name">
+            Gram Panchayat Name (English) <span class="required-star">*</span>
+          </label>
+          <input type="text" name="panchayat_name" id="panchayat_name" class="form-control" value="{{ settings.panchayat_name }}" placeholder="e.g. Byndoor Gram Panchayat or Ramanagara GP" required>
+          <span class="form-hint">Displayed in headers, emblems, and title bars.</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="panchayat_name_kn">
+            Gram Panchayat Name (Kannada) <span class="required-star">*</span>
+          </label>
+          <input type="text" name="panchayat_name_kn" id="panchayat_name_kn" class="form-control" value="{{ settings.panchayat_name_kn }}" placeholder="e.g. ಬೈಂದೂರು ಗ್ರಾಮ ಪಂಚಾಯತಿ" required>
+          <span class="form-hint">Displayed when citizens switch language to ಕನ್ನಡ.</span>
+        </div>
+      </div>
+
+      <!-- District & Taluk -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="district">District Name <span class="required-star">*</span></label>
+          <input type="text" name="district" id="district" class="form-control" value="{{ settings.district }}" placeholder="e.g. Udupi District or Mandya District" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="taluk">Taluk / Block Name <span class="required-star">*</span></label>
+          <input type="text" name="taluk" id="taluk" class="form-control" value="{{ settings.taluk }}" placeholder="e.g. Byndoor Taluk" required>
+        </div>
+      </div>
+
+      <!-- Covered Villages List (Comma Separated) -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" for="villages_list">
+          Covered Villages & Habitations (Comma-separated) <span class="required-star">*</span>
+        </label>
+        <textarea name="villages_list" id="villages_list" rows="3" class="form-control" placeholder="e.g. Village A, Village B, Village C, Hamlet D" required>{{ settings.villages_list }}</textarea>
+        <span class="form-hint">
+          Enter all villages, hamlets, or habitations under this Gram Panchayat separated by commas. These will automatically appear as options in the citizen registration and complaint filing forms.
+        </span>
+
+        <!-- Active village preview chips -->
+        <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+          {% for v in villages %}
+            <span style="display: inline-flex; align-items: center; gap: 4px; background: #e0f2fe; color: #0369a1; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 20px;">
+              <i class="fa-solid fa-house-chimney"></i> {{ v }}
+            </span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Official Contacts -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="helpline">Toll-Free Helpline / Phone</label>
+          <input type="text" name="helpline" id="helpline" class="form-control" value="{{ settings.helpline }}" placeholder="1800-425-3456 or 080-23456789">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="contact_email">Public Helpdesk Email</label>
+          <input type="email" name="contact_email" id="contact_email" class="form-control" value="{{ settings.contact_email }}" placeholder="helpdesk@gramseva.kar.gov.in">
+        </div>
+      </div>
+
+      <!-- Office Address -->
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" for="office_address">Panchayat Office Physical Address</label>
+        <textarea name="office_address" id="office_address" rows="2" class="form-control" placeholder="Office location, Road, Landmark, Pincode">{{ settings.office_address }}</textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 14px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+          <i class="fa-solid fa-floppy-disk"></i> Save & Apply Configuration
+        </button>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-lg">
+          Cancel
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

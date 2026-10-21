@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}My Complaints – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div>
+  
+  <!-- Page Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-folder-open" style="color: var(--primary);"></i>
+        {% if current_lang == 'kn' %}ನನ್ನ ದೂರುಗಳ ಪಟ್ಟಿ{% else %}My Submitted Complaints{% endif %}
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
+        Track all grievances reported by <strong>{{ g.user['full_name'] }}</strong> ({{ g.user['mobile'] }})
+      </p>
+    </div>
+
+    <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> Submit New Complaint
+    </a>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="civic-card" style="padding: 16px 20px; margin-bottom: 24px;">
+    
+    <!-- Filter Tabs with Counts -->
+    <div class="filter-tabs" style="margin-bottom: 16px;">
+      <a href="{{ url_for('my_complaints', status='all', search=search_query) }}" class="filter-tab {% if status_filter == 'all' %}active{% endif %}">
+        <i class="fa-solid fa-list"></i> All Complaints
+        <span class="filter-count">{{ counts['all_count'] or 0 }}</span>
+      </a>
+      <a href="{{ url_for('my_complaints', status='pending', search=search_query) }}" class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">
+        <i class="fa-solid fa-clock"></i> Pending
+        <span class="filter-count">{{ counts['pending_count'] or 0 }}</span>
+      </a>
+      <a href="{{ url_for('my_complaints', status='in_progress', search=search_query) }}" class="filter-tab {% if status_filter == 'in_progress' %}active{% endif %}">
+        <i class="fa-solid fa-person-digging"></i> In Progress
+        <span class="filter-count">{{ counts['in_progress_count'] or 0 }}</span>
+      </a>
+      <a href="{{ url_for('my_complaints', status='resolved', search=search_query) }}" class="filter-tab {% if status_filter == 'resolved' %}active{% endif %}">
+        <i class="fa-solid fa-circle-check"></i> Resolved
+        <span class="filter-count">{{ counts['resolved_count'] or 0 }}</span>
+      </a>
+      <a href="{{ url_for('my_complaints', status='rejected', search=search_query) }}" class="filter-tab {% if status_filter == 'rejected' %}active{% endif %}">
+        <i class="fa-solid fa-ban"></i> Rejected
+        <span class="filter-count">{{ counts['rejected_count'] or 0 }}</span>
+      </a>
+    </div>
+
+    <!-- Search Form -->
+    <form action="{{ url_for('my_complaints') }}" method="GET" style="display: flex; gap: 12px;">
+      <input type="hidden" name="status" value="{{ status_filter }}">
+      <div style="position: relative; flex: 1;">
+        <span style="position: absolute; left: 14px; top: 12px; color: #94a3b8;"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" name="search" class="form-control" style="padding-left: 40px;" placeholder="Search your complaints by ID, title, or landmark..." value="{{ search_query }}">
+      </div>
+      <button type="submit" class="btn btn-outline-primary">
+        Search
+      </button>
+      {% if search_query %}
+        <a href="{{ url_for('my_complaints', status=status_filter) }}" class="btn btn-outline">Clear</a>
+      {% endif %}
+    </form>
+
+  </div>
+
+  <!-- Complaints Display: Table on Desktop, Cards on Mobile -->
+  {% if complaints %}
+    
+    <!-- DESKTOP TABLE -->
+    <div class="table-responsive">
+      <table class="civic-table">
+        <thead>
+          <tr>
+            <th>Complaint ID</th>
+            <th>Category</th>
+            <th>Title & Location</th>
+            <th>Date Filed</th>
+            <th>Priority</th>
+            <th>Current Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+            <tr>
+              <td>
+                <a href="{{ url_for('track', complaint_id=c['complaint_id']) }}" style="font-family: monospace; font-weight: 700; color: var(--primary);">
+                  {{ c['complaint_id'] }}
+                </a>
+              </td>
+              <td>
+                <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500;">
+                  <i class="{{ c['cat_icon'] }}" style="color: {{ c['cat_color'] }};"></i>
+                  {{ c['cat_name_en'] }}
+                </span>
+              </td>
+              <td>
+                <div style="font-weight: 600; color: var(--text-main);">{{ c['title'] }}</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ c['landmark'] }}, {{ c['ward_no'] }}</div>
+              </td>
+              <td style="white-space: nowrap;">
+                {{ c['created_at'][:10] }}
+              </td>
+              <td>
+                <span class="priority-pill priority-{{ c['priority'].lower() }}">
+                  {{ c['priority'] }}
+                </span>
+              </td>
+              <td>
+                {% set status_class = c['status'].lower().replace(' ', '-') %}
+                <span class="status-pill status-{{ status_class }}">{{ c['status'] }}</span>
+              </td>
+              <td style="white-space: nowrap;">
+                <a href="{{ url_for('track', complaint_id=c['complaint_id']) }}" class="btn btn-outline-primary btn-sm">
+                  <i class="fa-solid fa-eye"></i> View Details
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% else %}
+    <div class="civic-card" style="text-align: center; padding: 50px 20px;">
+      <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 12px;">
+        <i class="fa-solid fa-inbox"></i>
+      </div>
+      <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 6px;">No Complaints Found</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+        No complaints match your current filter or search criteria.
+      </p>
+      <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> Submit a Complaint Now
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

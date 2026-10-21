@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Grama Seva – Smart Gram Panchayat Complaint Management Portal{% endblock %}</title>
+  
+  <!-- Favicon / Emblem -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/emblem.svg') }}">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Core Design Stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- National Tricolor Top Ribbon -->
+  <div class="top-tricolor-bar"></div>
+
+  <!-- Official Sub-header Band -->
+  <div class="gov-header-band">
+    <div class="gov-title">
+      <i class="fa-solid fa-landmark-dome"></i>
+      <span>Department of Rural Development & Panchayat Raj • <strong>{{ gp.panchayat_name }}</strong></span>
+    </div>
+    <div class="quick-links">
+      <span><i class="fa-solid fa-phone-volume"></i> Helpline: {{ gp.helpline }}</span>
+      <a href="{{ url_for('help_support') }}"><i class="fa-regular fa-circle-question"></i> Help Desk</a>
+    </div>
+  </div>
+
+  <!-- Main Navigation Bar -->
+  <nav class="main-navbar">
+    <div class="navbar-container">
+      
+      <!-- Brand & Emblem -->
+      <a href="{{ url_for('home') }}" class="brand-wrapper">
+        <img src="{{ url_for('static', filename='images/emblem.svg') }}" alt="Grama Seva Emblem" class="brand-emblem">
+        <div class="brand-text">
+          <div class="brand-title">
+            <span>GRAMA SEVA</span>
+            <span class="badge-beta">PORTAL</span>
+          </div>
+          <div class="brand-subtitle">
+            {% if current_lang == 'kn' %}
+              <span>{{ gp.panchayat_name_kn }} • {{ gp.district }}</span>
+            {% else %}
+              <span>Your Village, Your Voice • <span class="panchayat-name">{{ gp.panchayat_name }}</span></span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <ul class="nav-links">
+        {% if g.user and g.user['role'] == 'admin' %}
+          <li class="nav-item {% if request.path.startswith('/admin/dashboard') %}active{% endif %}">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Admin Overview</a>
+          </li>
+          <li class="nav-item {% if request.path == '/admin/complaints' %}active{% endif %}">
+            <a href="{{ url_for('admin_complaints') }}" class="nav-link"><i class="fa-solid fa-list-check"></i> Manage Complaints</a>
+          </li>
+          <li class="nav-item {% if request.path == '/admin/reports' %}active{% endif %}">
+            <a href="{{ url_for('admin_reports') }}" class="nav-link"><i class="fa-solid fa-file-chart-column"></i> Analytics</a>
+          </li>
+          <li class="nav-item {% if request.path == '/admin/departments' %}active{% endif %}">
+            <a href="{{ url_for('admin_departments') }}" class="nav-link"><i class="fa-solid fa-sitemap"></i> Departments</a>
+          </li>
+          <li class="nav-item {% if request.path == '/admin/settings' %}active{% endif %}">
+            <a href="{{ url_for('admin_settings') }}" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+          </li>
+        {% elif g.user %}
+          <li class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+            <a href="{{ url_for('dashboard') }}" class="nav-link"><i class="fa-solid fa-house"></i> {% if current_lang == 'kn' %}ಡ್ಯಾಶ್‌ಬೋರ್ಡ್{% else %}Dashboard{% endif %}</a>
+          </li>
+          <li class="nav-item {% if request.path == '/submit-complaint' %}active{% endif %}">
+            <a href="{{ url_for('submit_complaint') }}" class="nav-link"><i class="fa-solid fa-circle-plus"></i> {% if current_lang == 'kn' %}ದೂರು ಸಲ್ಲಿಸಿ{% else %}Submit Complaint{% endif %}</a>
+          </li>
+          <li class="nav-item {% if request.path.startswith('/track') %}active{% endif %}">
+            <a href="{{ url_for('track') }}" class="nav-link"><i class="fa-solid fa-location-crosshairs"></i> {% if current_lang == 'kn' %}ಟ್ರ್ಯಾಕ್ ಮಾಡಿ{% else %}Track Status{% endif %}</a>
+          </li>
+          <li class="nav-item {% if request.path == '/my-complaints' %}active{% endif %}">
+            <a href="{{ url_for('my_complaints') }}" class="nav-link"><i class="fa-solid fa-folder-open"></i> {% if current_lang == 'kn' %}ನನ್ನ ದೂರುಗಳು{% else %}My Complaints{% endif %}</a>
+          </li>
+          <li class="nav-item {% if request.path == '/categories' %}active{% endif %}">
+            <a href="{{ url_for('categories') }}" class="nav-link"><i class="fa-solid fa-grid-2"></i> {% if current_lang == 'kn' %}ವಿಭಾಗಗಳು{% else %}Categories{% endif %}</a>
+          </li>
+          <li class="nav-item {% if request.path == '/help' %}active{% endif %}">
+            <a href="{{ url_for('help_support') }}" class="nav-link"><i class="fa-regular fa-circle-question"></i> {% if current_lang == 'kn' %}ಸಹಾಯ{% else %}Help{% endif %}</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a href="{{ url_for('login') }}" class="nav-link"><i class="fa-solid fa-arrow-right-to-bracket"></i> Citizen Login</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('admin_login') }}" class="nav-link"><i class="fa-solid fa-user-shield"></i> Officer Portal</a>
+          </li>
+        {% endif %}
+      </ul>
+
+      <!-- Action Controls -->
+      <div class="nav-actions">
+        
+        <!-- Language Switcher Pill -->
+        <div class="lang-toggle" title="Switch Language / ಭಾಷೆ ಬದಲಾಯಿಸಿ">
+          <a href="{{ url_for('set_language', lang='en') }}" class="lang-btn {% if current_lang == 'en' %}active{% endif %}">EN</a>
+          <a href="{{ url_for('set_language', lang='kn') }}" class="lang-btn {% if current_lang == 'kn' %}active{% endif %}">ಕನ್ನಡ</a>
+        </div>
+
+        {% if g.user %}
+          <!-- Notifications Bell -->
+          <a href="{{ url_for('notifications') }}" class="notif-bell-btn" title="View Notifications">
+            <i class="fa-regular fa-bell"></i>
+            {% if g.unread_notifications_count > 0 %}
+              <span class="notif-badge">{{ g.unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+
+          <!-- User Pill / Profile Menu -->
+          <a href="{{ url_for('profile') }}" class="user-pill" title="View Profile">
+            <div class="user-avatar">
+              {{ g.user['full_name'][0] }}
+            </div>
+            <span class="user-name-label">{{ g.user['full_name'].split(' ')[0] }}</span>
+          </a>
+
+          <!-- Logout Button -->
+          <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm" title="Logout">
+            <i class="fa-solid fa-power-off"></i>
+          </a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-right-to-bracket"></i> Login
+          </a>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Flash Alerts -->
+  <div class="alert-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="civic-alert civic-alert-{{ category }}">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              {% if category == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+              {% elif category == 'danger' %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+              {% elif category == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+              {% endif %}
+              <span>{{ message }}</span>
+            </div>
+            <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Body Content Block -->
+  <main class="main-wrapper">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  {% if g.user %}
+  <div class="mobile-bottom-nav">
+    {% if g.user['role'] == 'admin' %}
+      <a href="{{ url_for('admin_dashboard') }}" class="mobile-nav-item {% if request.path == '/admin/dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Stats</span>
+      </a>
+      <a href="{{ url_for('admin_complaints') }}" class="mobile-nav-item {% if request.path == '/admin/complaints' %}active{% endif %}">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Complaints</span>
+      </a>
+      <a href="{{ url_for('admin_reports') }}" class="mobile-nav-item {% if request.path == '/admin/reports' %}active{% endif %}">
+        <i class="fa-solid fa-file-chart-column"></i>
+        <span>Reports</span>
+      </a>
+      <a href="{{ url_for('admin_departments') }}" class="mobile-nav-item {% if request.path == '/admin/departments' %}active{% endif %}">
+        <i class="fa-solid fa-sitemap"></i>
+        <span>Depts</span>
+      </a>
+      <a href="{{ url_for('logout') }}" class="mobile-nav-item">
+        <i class="fa-solid fa-power-off"></i>
+        <span>Logout</span>
+      </a>
+    {% else %}
+      <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="{{ url_for('categories') }}" class="mobile-nav-item {% if request.path == '/categories' %}active{% endif %}">
+        <i class="fa-solid fa-grid-2"></i>
+        <span>Categories</span>
+      </a>
+      <a href="{{ url_for('submit_complaint') }}" class="mobile-nav-item mobile-fab-item">
+        <div class="mobile-fab-circle" title="Submit Complaint">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+        <span style="margin-top: 4px;">Submit</span>
+      </a>
+      <a href="{{ url_for('track') }}" class="mobile-nav-item {% if request.path.startswith('/track') %}active{% endif %}">
+        <i class="fa-solid fa-location-crosshairs"></i>
+        <span>Track</span>
+      </a>
+      <a href="{{ url_for('notifications') }}" class="mobile-nav-item {% if request.path == '/notifications' %}active{% endif %}">
+        <i class="fa-regular fa-bell"></i>
+        <span>Alerts</span>
+        {% if g.unread_notifications_count > 0 %}
+          <span class="notif-badge" style="top: 2px; right: 20px;">{{ g.unread_notifications_count }}</span>
+        {% endif %}
+      </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Official Civic Footer -->
+  <footer class="civic-footer">
+    <div class="footer-container">
+      
+      <!-- Col 1: About Portal -->
+      <div class="footer-col">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <img src="{{ url_for('static', filename='images/emblem.svg') }}" alt="Emblem" style="width: 32px; height: 32px; background: #fff; border-radius: 50%; padding: 2px;">
+          <h4 style="margin: 0; padding: 0;">GRAMA SEVA PORTAL</h4>
+        </div>
+        <p>
+          Smart Gram Panchayat Complaint Management & Civic Redressal Portal designed to empower rural citizens, improve transparency, and accelerate village development.
+        </p>
+        <p style="margin-top: 10px; font-size: 0.8rem; color: #a7f3d0;">
+          <i class="fa-solid fa-shield-halved"></i> An initiative for Digital Gram Panchayat Governance.
+        </p>
+      </div>
+
+      <!-- Col 2: Quick Links -->
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('dashboard') }}">Citizen Dashboard</a></li>
+          <li><a href="{{ url_for('submit_complaint') }}">Submit Complaint</a></li>
+          <li><a href="{{ url_for('track') }}">Track Status by ID</a></li>
+          <li><a href="{{ url_for('categories') }}">Complaint Categories</a></li>
+          <li><a href="{{ url_for('help_support') }}">Frequently Asked Questions</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Key Services -->
+      <div class="footer-col">
+        <h4>Key Services</h4>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('submit_complaint', category=1) }}">Water Supply Issues</a></li>
+          <li><a href="{{ url_for('submit_complaint', category=2) }}">Roads & Potholes</a></li>
+          <li><a href="{{ url_for('submit_complaint', category=3) }}">Streetlight Repairs</a></li>
+          <li><a href="{{ url_for('submit_complaint', category=6) }}">Government School Problems</a></li>
+          <li><a href="{{ url_for('submit_complaint', category=4) }}">Solid Waste Sanitation</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Contact & Office -->
+      <div class="footer-col">
+        <h4>Panchayat Office</h4>
+        <p><i class="fa-solid fa-location-dot" style="color: var(--accent-saffron); margin-right: 6px;"></i> {{ gp.office_address }}</p>
+        <p style="margin-top: 6px;"><i class="fa-regular fa-clock" style="color: var(--accent-saffron); margin-right: 6px;"></i> Mon – Sat: 10:00 AM – 5:30 PM</p>
+        <p style="margin-top: 6px;"><i class="fa-solid fa-phone" style="color: var(--accent-saffron); margin-right: 6px;"></i> {{ gp.helpline }}</p>
+        <p style="margin-top: 6px;"><i class="fa-regular fa-envelope" style="color: var(--accent-saffron); margin-right: 6px;"></i> {{ gp.contact_email }}</p>
+      </div>
+
+    </div>
+
+    <!-- Footer Bottom Note -->
+    <div class="footer-bottom">
+      <div>
+        © {{ now.year }} Grama Seva • {{ gp.panchayat_name }}. All rights reserved.
+      </div>
+      <div style="display: flex; gap: 20px;">
+        <span><i class="fa-solid fa-circle-check" style="color: #4ade80;"></i> Role-Based Secure Access</span>
+        <span><i class="fa-solid fa-lock" style="color: #fcd34d;"></i> Encrypted Passwords</span>
+        <a href="{{ url_for('admin_login') }}" style="color: #cbd5e1; text-decoration: underline;">Admin Portal Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

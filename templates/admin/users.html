@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_title %}Registered Citizens & Officers Directory{% endblock %}
+
+{% block admin_content %}
+<div class="civic-card" style="padding: 0; overflow: hidden;">
+  <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+        Panchayat Citizen & Official User Accounts
+      </h3>
+      <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+        Registered voters and residents of Shivapura Gram Panchayat
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive" style="border: none;">
+    <table class="civic-table">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Full Name</th>
+          <th>Mobile Number</th>
+          <th>Village Habitation</th>
+          <th>Ward</th>
+          <th>Account Role</th>
+          <th>Complaints Filed</th>
+          <th>Registered Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>
+              <span style="font-family: monospace; font-weight: 700; color: #64748b;">#{{ u['id'] }}</span>
+            </td>
+            <td>
+              <strong style="color: var(--text-main);">{{ u['full_name'] }}</strong>
+              {% if u['email'] %}<div style="font-size: 0.76rem; color: #64748b;">{{ u['email'] }}</div>{% endif %}
+            </td>
+            <td>
+              <i class="fa-solid fa-phone" style="font-size: 0.75rem; color: #94a3b8;"></i> {{ u['mobile'] }}
+            </td>
+            <td>{{ u['village'] }}</td>
+            <td>
+              <span style="font-weight: 600;">{{ u['ward_no'] }}</span>
+            </td>
+            <td>
+              {% if u['role'] == 'admin' %}
+                <span class="status-pill status-assigned" style="font-size: 0.72rem;">Admin / PDO</span>
+              {% else %}
+                <span class="status-pill status-submitted" style="font-size: 0.72rem;">Citizen</span>
+              {% endif %}
+            </td>
+            <td>
+              <strong>{{ u['complaint_count'] or 0 }}</strong>
+            </td>
+            <td style="font-size: 0.8rem; color: #64748b;">
+              {{ u['created_at'][:10] }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

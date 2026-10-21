@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Administrator & Officer Login – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 480px; margin: 40px auto 60px;">
+  
+  <div style="background-color: #ffffff; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: var(--shadow-xl); overflow: hidden;">
+    
+    <!-- Header with Gold / Saffron Accent -->
+    <div style="background: linear-gradient(135deg, #166534 0%, #0f4c25 100%); color: #ffffff; padding: 32px 28px; text-align: center; border-bottom: 4px solid var(--accent-saffron);">
+      <div style="width: 64px; height: 64px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+        <img src="{{ url_for('static', filename='images/emblem.svg') }}" alt="Emblem" style="width: 54px; height: 54px;">
+      </div>
+      <div style="display: inline-block; background-color: var(--accent-saffron); color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+        OFFICIAL PORTAL
+      </div>
+      <h2 style="color: #ffffff; font-size: 1.45rem; font-weight: 700; margin: 0;">Panchayat Officer Login</h2>
+      <p style="color: #dcfce7; font-size: 0.82rem; margin: 4px 0 0;">
+        Panchayat Development Officers (PDO) & Staff
+      </p>
+    </div>
+
+    <!-- Login Form Body -->
+    <div style="padding: 32px 28px;">
+      
+      <!-- Security Notice -->
+      <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-left: 3px solid var(--primary); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 22px; font-size: 0.82rem; color: #475569;">
+        <i class="fa-solid fa-lock" style="color: var(--primary); margin-right: 6px;"></i>
+        Restricted to authorized Gram Panchayat executive officers and nodal department supervisors.
+      </div>
+
+      <form action="{{ url_for('admin_login') }}" method="POST">
+        <div class="form-group">
+          <label class="form-label" for="admin_username">Officer Username / Mobile <span class="required-star">*</span></label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 14px; top: 12px; color: #94a3b8;"><i class="fa-solid fa-shield-halved"></i></span>
+            <input type="text" id="admin_username" name="username" class="form-control" style="padding-left: 40px;" placeholder="e.g. admin or 9845012345" required autofocus>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="admin_password">Secure Password <span class="required-star">*</span></label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 14px; top: 12px; color: #94a3b8;"><i class="fa-solid fa-key"></i></span>
+            <input type="password" id="admin_password" name="password" class="form-control" style="padding-left: 40px; padding-right: 42px;" placeholder="Enter administrator password" required>
+            <button type="button" class="password-toggle-btn" data-target="admin_password" style="position: absolute; right: 12px; top: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px;">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 10px;">
+          <i class="fa-solid fa-unlock-keyhole"></i> Access Administrative Dashboard
+        </button>
+      </form>
+
+      <!-- Quick Demo Credentials for Testing -->
+      <div style="margin-top: 24px; padding: 12px; background: #fffbeb; border: 1px dashed #fcd34d; border-radius: var(--radius-md); text-align: center;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #92400e; margin-bottom: 6px;">
+          <i class="fa-solid fa-flask"></i> DEMO OFFICER CREDENTIALS
+        </div>
+        <button type="button" class="btn btn-sm btn-saffron" onclick="quickFillAdmin()" style="font-size: 0.8rem; width: 100%;">
+          🛡️ Auto-fill: <strong>admin</strong> / admin123
+        </button>
+      </div>
+
+      <!-- Back to Citizen Login Link -->
+      <div style="text-align: center; margin-top: 24px;">
+        <a href="{{ url_for('login') }}" style="font-size: 0.86rem; color: var(--text-muted); font-weight: 500;">
+          <i class="fa-solid fa-arrow-left"></i> Return to Citizen Portal Login
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function quickFillAdmin() {
+    document.getElementById('admin_username').value = 'admin';
+    document.getElementById('admin_password').value = 'admin123';
+  }
+</script>
+{% endblock %}

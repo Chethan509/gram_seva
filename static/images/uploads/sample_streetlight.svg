@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bgGrad)"/>
+  <!-- Photo frame styling with date stamp -->
+  <rect x="20" y="20" width="360" height="260" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+  <rect x="35" y="35" width="330" height="180" rx="8" fill="#eab30815" stroke="#eab30840" stroke-width="1.5"/>
+  
+  <!-- Icon Center -->
+  <circle cx="200" cy="110" r="42" fill="#eab30825"/>
+  <circle cx="200" cy="110" r="32" fill="#eab308"/>
+  <text x="200" y="118" font-family="'Segoe UI', sans-serif" font-size="24" fill="#FFFFFF" text-anchor="middle">💡</text>
+
+  <!-- Camera overlay badge -->
+  <rect x="45" y="45" width="110" height="24" rx="4" fill="#1E293B" opacity="0.8"/>
+  <text x="100" y="61" font-family="sans-serif" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">📷 SITE EVIDENCE</text>
+
+  <!-- Title & Subtitle -->
+  <text x="40" y="240" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1E293B">Non-working Streetlights</text>
+  <text x="40" y="260" font-family="sans-serif" font-size="11" fill="#64748B">Ward 2, Basaveshwara Street</text>
+  <rect x="290" y="235" width="75" height="22" rx="11" fill="#eab30820"/>
+  <text x="327" y="250" font-family="sans-serif" font-size="10" font-weight="bold" fill="#eab308" text-anchor="middle">VERIFIED</text>
+</svg>

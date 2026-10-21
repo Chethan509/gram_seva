@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_title %}Gram Panchayat Executive Departments & Nodal Cells{% endblock %}
+
+{% block admin_content %}
+<div class="civic-card" style="padding: 0; overflow: hidden;">
+  <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+        Panchayat Service Delivery Departments
+      </h3>
+      <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+        9 Specialized civic engineering and sanitation cells responsible for public grievances
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive" style="border: none;">
+    <table class="civic-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Department Name</th>
+          <th>Kannada Official Name</th>
+          <th>Nodal Officer & Designation</th>
+          <th>Official Contact</th>
+          <th>Assigned Workload</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in departments %}
+          <tr>
+            <td>
+              <span style="font-family: monospace; font-weight: 700; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px;">
+                {{ d['code'] }}
+              </span>
+            </td>
+            <td>
+              <div style="font-weight: 600; color: var(--text-main);">{{ d['name_en'] }}</div>
+              <div style="font-size: 0.76rem; color: #64748b;">{{ d['email'] }}</div>
+            </td>
+            <td style="font-weight: 500; color: var(--primary);">
+              {{ d['name_kn'] }}
+            </td>
+            <td>
+              <div style="font-weight: 600;">{{ d['officer_name'] }}</div>
+            </td>
+            <td>
+              <span style="font-size: 0.82rem;"><i class="fa-solid fa-phone" style="color: #64748b;"></i> {{ d['officer_contact'] }}</span>
+            </td>
+            <td>
+              <span class="status-pill {% if d['active_count'] > 0 %}status-in-progress{% else %}status-resolved{% endif %}" style="font-size: 0.75rem;">
+                {{ d['active_count'] or 0 }} Active / {{ d['total_complaints'] or 0 }} Total
+              </span>
+            </td>
+            <td>
+              <a href="{{ url_for('admin_complaints', search=d['name_en'][:8]) }}" class="btn btn-outline-primary btn-sm">
+                View Grievances
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

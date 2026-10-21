@@ -1,0 +1,302 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_title %}Gram Panchayat Grievance Management Register{% endblock %}
+
+{% block admin_content %}
+
+<!-- FILTER TOOLBAR -->
+<div class="admin-toolbar">
+  <form action="{{ url_for('admin_complaints') }}" method="GET" style="display: contents;">
+    
+    <!-- Search Bar -->
+    <div class="search-box">
+      <div style="position: relative;">
+        <span style="position: absolute; left: 12px; top: 11px; color: #94a3b8;"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" name="search" class="form-control" style="padding-left: 36px;" placeholder="Search ID, title, citizen, landmark..." value="{{ search_query }}">
+      </div>
+    </div>
+
+    <!-- Status Filter -->
+    <div style="min-width: 150px;">
+      <select name="status" class="form-select" onchange="this.form.submit()">
+        <option value="all">Status: All</option>
+        <option value="Submitted" {% if current_status == 'Submitted' %}selected{% endif %}>Submitted</option>
+        <option value="Under Review" {% if current_status == 'Under Review' %}selected{% endif %}>Under Review</option>
+        <option value="Assigned" {% if current_status == 'Assigned' %}selected{% endif %}>Assigned</option>
+        <option value="In Progress" {% if current_status == 'In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Resolved" {% if current_status == 'Resolved' %}selected{% endif %}>Resolved</option>
+        <option value="Rejected" {% if current_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+
+    <!-- Category Filter -->
+    <div style="min-width: 170px;">
+      <select name="category" class="form-select" onchange="this.form.submit()">
+        <option value="">Category: All</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if current_category|string == cat.id|string %}selected{% endif %}>
+            {{ cat.name_en }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Priority Filter -->
+    <div style="min-width: 130px;">
+      <select name="priority" class="form-select" onchange="this.form.submit()">
+        <option value="">Priority: All</option>
+        <option value="Low" {% if current_priority == 'Low' %}selected{% endif %}>Low</option>
+        <option value="Medium" {% if current_priority == 'Medium' %}selected{% endif %}>Medium</option>
+        <option value="High" {% if current_priority == 'High' %}selected{% endif %}>High</option>
+        <option value="Urgent" {% if current_priority == 'Urgent' %}selected{% endif %}>Urgent</option>
+      </select>
+    </div>
+
+    <!-- Ward Filter -->
+    <div style="min-width: 130px;">
+      <select name="ward" class="form-select" onchange="this.form.submit()">
+        <option value="">Ward: All</option>
+        {% for w in wards %}
+          <option value="{{ w.ward_no }}" {% if current_ward == w.ward_no %}selected{% endif %}>
+            {{ w.ward_no }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    {% if search_query or current_status != 'all' or current_category or current_priority or current_ward %}
+      <a href="{{ url_for('admin_complaints') }}" class="btn btn-outline btn-sm">Reset</a>
+    {% endif %}
+
+  </form>
+</div>
+
+<!-- COMPLAINTS TABLE -->
+<div class="civic-card" style="padding: 0; overflow: hidden;">
+  {% if complaints %}
+    <div class="table-responsive">
+      <table class="civic-table">
+        <thead>
+          <tr>
+            <th>Complaint ID</th>
+            <th>Citizen</th>
+            <th>Category</th>
+            <th>Village & Ward</th>
+            <th>Submission Date</th>
+            <th>Priority</th>
+            <th>Assigned Department</th>
+            <th>Current Status</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+            <tr>
+              <td>
+                <strong style="font-family: monospace; color: var(--primary);">{{ c['complaint_id'] }}</strong>
+                {% if c['photo_url'] %}
+                  <span title="Photo Evidence Attached" style="color: #0284c7; margin-left: 4px;"><i class="fa-solid fa-camera"></i></span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="font-weight: 600;">{{ c['citizen_name'] }}</div>
+                <div style="font-size: 0.76rem; color: #64748b;"><i class="fa-solid fa-phone"></i> {{ c['contact_number'] }}</div>
+              </td>
+              <td>
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="{{ c['cat_icon'] }}" style="color: {{ c['cat_color'] }};"></i>
+                  {{ c['cat_name_en'] }}
+                </span>
+                {% if c['school_name'] %}
+                  <div style="font-size: 0.72rem; color: #7c3aed; font-weight: 600;"><i class="fa-solid fa-school"></i> Govt School</div>
+                {% endif %}
+              </td>
+              <td>
+                <div>{{ c['ward_no'] }}</div>
+                <div style="font-size: 0.76rem; color: #64748b;">{{ c['village'] }}</div>
+              </td>
+              <td style="white-space: nowrap;">
+                {{ c['created_at'][:10] }}
+              </td>
+              <td>
+                <span class="priority-pill priority-{{ c['priority'].lower() }}">
+                  {{ c['priority'] }}
+                </span>
+              </td>
+              <td>
+                <span style="font-size: 0.82rem; font-weight: 500; color: #334155;">
+                  {{ c['dept_name'] or 'Unassigned' }}
+                </span>
+              </td>
+              <td>
+                {% set status_class = c['status'].lower().replace(' ', '-') %}
+                <span class="status-pill status-{{ status_class }}">{{ c['status'] }}</span>
+              </td>
+              <td style="text-align: right; white-space: nowrap;">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="openAdminActionModal({{ c['id'] }}, '{{ c['complaint_id'] }}', '{{ c['title']|replace("'", "\\'") }}', '{{ c['citizen_name']|replace("'", "\\'") }}', '{{ c['category_id'] }}', '{{ c['department_id'] or 1 }}', '{{ c['priority'] }}', '{{ c['status'] }}', '{{ (c['officer_remarks'] or '')|replace("'", "\\'") }}', '{{ (c['resolution_details'] or '')|replace("'", "\\'") }}', '{{ (c['description'] or '')|replace("'", "\\'") }}', '{{ c['photo_url'] or '' }}', '{{ (c['school_name'] or '')|replace("'", "\\'") }}')">
+                  <i class="fa-solid fa-pen-to-square"></i> Action
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 50px 20px;">
+      <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; color: #cbd5e1; margin-bottom: 10px;"></i>
+      <h3 style="font-size: 1.15rem; color: var(--text-main);">No Grievances Found</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Try clearing the filters or searching for another term.</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- ADMIN ACTION MODAL -->
+<div class="civic-modal-backdrop" id="adminActionModal">
+  <div class="civic-modal" style="max-width: 800px;">
+    
+    <div class="civic-modal-header">
+      <div>
+        <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Panchayat Officer Action Panel</div>
+        <h3 id="modalComplaintIdTitle" style="font-size: 1.25rem; font-weight: 700; color: var(--primary); margin: 0;">
+          Update Grievance: GS-2026-XXXXX
+        </h3>
+      </div>
+      <button type="button" class="close-btn" data-dismiss="modal" style="font-size: 1.4rem; border: none; background: none; cursor: pointer;">&times;</button>
+    </div>
+
+    <form id="adminUpdateForm" method="POST" action="">
+      <div class="civic-modal-body">
+        
+        <!-- Complaint Summary Preview Box -->
+        <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <strong id="modalTitle" style="color: var(--text-main); font-size: 1rem;"></strong>
+            <span id="modalCitizen" style="color: #64748b; font-size: 0.82rem;"></span>
+          </div>
+          <p id="modalDescription" style="font-size: 0.86rem; color: #475569; margin: 0; line-height: 1.5;"></p>
+          
+          <!-- School Banner inside Modal if applicable -->
+          <div id="modalSchoolBanner" style="display: none; margin-top: 10px; background: #ede9fe; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; color: #5b21b6;">
+            <i class="fa-solid fa-school"></i> <strong>School Name:</strong> <span id="modalSchoolName"></span>
+          </div>
+
+          <!-- Photo Thumbnail if present -->
+          <div id="modalPhotoContainer" style="display: none; margin-top: 12px;">
+            <a id="modalPhotoLink" href="#" target="_blank" style="font-size: 0.8rem; font-weight: 600; color: #0284c7; display: inline-flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-image"></i> View Full Size Photo Evidence &rarr;
+            </a>
+            <img id="modalPhotoImg" src="#" alt="Evidence" style="max-height: 140px; border-radius: 6px; margin-top: 6px; border: 1px solid #cbd5e1;">
+          </div>
+        </div>
+
+        <!-- FORM CONTROLS -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          
+          <!-- Status Dropdown -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Update Grievance Status <span class="required-star">*</span></label>
+            <select name="status" id="modalStatusSelect" class="form-select" required>
+              <option value="Submitted">Submitted (Registered)</option>
+              <option value="Under Review">Under Review (Inspecting)</option>
+              <option value="Assigned">Assigned to Department</option>
+              <option value="In Progress">Work in Progress</option>
+              <option value="Resolved">Resolved (Work Completed)</option>
+              <option value="Rejected">Rejected (Out of scope / Invalid)</option>
+            </select>
+          </div>
+
+          <!-- Priority Dropdown -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Set Priority Level</label>
+            <select name="priority" id="modalPrioritySelect" class="form-select">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent / Critical</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Department Routing -->
+        <div class="form-group">
+          <label class="form-label">Assign Responsible Department / Officer Cell</label>
+          <select name="department_id" id="modalDeptSelect" class="form-select">
+            {% for d in departments %}
+              <option value="{{ d.id }}">
+                {{ d.name_en }} (Officer: {{ d.officer_name }})
+              </option>
+            {% endfor %}
+          </select>
+          <span class="form-hint">For school problems, route to Panchayat Education Committee or Block Education Officer (BEO).</span>
+        </div>
+
+        <!-- Official Remarks -->
+        <div class="form-group">
+          <label class="form-label">Official Remarks / Action Notes (Visible to Citizen) <span class="required-star">*</span></label>
+          <textarea name="officer_remarks" id="modalRemarksText" rows="3" class="form-control" placeholder="Enter inspection findings, work order dispatch date, or official updates..." required></textarea>
+        </div>
+
+        <!-- Resolution Details (Required if marking Resolved) -->
+        <div class="form-group" id="resolutionDetailsGroup" style="margin-bottom: 0;">
+          <label class="form-label">Resolution Work Details (If marking as Resolved)</label>
+          <textarea name="resolution_details" id="modalResolutionText" rows="2" class="form-control" placeholder="Specify materials replaced, inspection date, or contractor completion signoff..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="civic-modal-footer">
+        <button type="button" class="btn btn-outline" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i> Save & Notify Citizen
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function openAdminActionModal(dbId, compId, title, citizen, catId, deptId, priority, status, remarks, resDetails, desc, photoUrl, schoolName) {
+    document.getElementById('modalComplaintIdTitle').innerText = 'Manage Grievance: ' + compId;
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalCitizen').innerText = 'Reported by: ' + citizen;
+    document.getElementById('modalDescription').innerText = desc;
+    
+    // School banner
+    const schoolBanner = document.getElementById('modalSchoolBanner');
+    if (schoolName && schoolName.trim() !== '') {
+      schoolBanner.style.display = 'block';
+      document.getElementById('modalSchoolName').innerText = schoolName;
+    } else {
+      schoolBanner.style.display = 'none';
+    }
+
+    // Photo preview
+    const photoContainer = document.getElementById('modalPhotoContainer');
+    if (photoUrl && photoUrl.trim() !== '') {
+      photoContainer.style.display = 'block';
+      document.getElementById('modalPhotoImg').src = photoUrl;
+      document.getElementById('modalPhotoLink').href = photoUrl;
+    } else {
+      photoContainer.style.display = 'none';
+    }
+
+    // Form inputs
+    document.getElementById('modalStatusSelect').value = status;
+    document.getElementById('modalPrioritySelect').value = priority;
+    document.getElementById('modalDeptSelect').value = deptId;
+    document.getElementById('modalRemarksText').value = remarks;
+    document.getElementById('modalResolutionText').value = resDetails;
+
+    // Form action URL
+    document.getElementById('adminUpdateForm').action = '/admin/complaint/' + dbId + '/update';
+
+    // Show modal
+    document.getElementById('adminActionModal').classList.add('show');
+  }
+</script>
+
+{% endblock %}

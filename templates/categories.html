@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Complaint Categories – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 28px;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-shapes" style="color: var(--primary);"></i>
+        {% if current_lang == 'kn' %}ಗ್ರಾಮ ಪಂಚಾಯತಿ ದೂರು ವಿಭಾಗಗಳು{% else %}Gram Panchayat Civic Categories{% endif %}
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+        {% if current_lang == 'kn' %}
+          ನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ನೇರವಾಗಿ ಆಯಾ ತಾಂತ್ರಿಕ ವಿಭಾಗಕ್ಕೆ ತಲುಪಿಸಲು ಕೆಳಗಿನ ಸೂಕ್ತ ವಿಭಾಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ.
+        {% else %}
+          Select an appropriate category to file your grievance directly with the designated department in Shivapura Gram Panchayat.
+        {% endif %}
+      </p>
+    </div>
+    
+    <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i>
+      {% if current_lang == 'kn' %}ಹೊಸ ದೂರು ಸಲ್ಲಿಸಿ{% else %}File a Grievance{% endif %}
+    </a>
+  </div>
+</div>
+
+<!-- 9 Category Detailed Grid -->
+<div class="categories-grid" style="grid-template-columns: repeat(3, 1fr);">
+  {% for cat in categories %}
+    <div class="civic-card" style="display: flex; flex-direction: column; border-top: 4px solid {{ cat.color }}; position: relative;">
+      
+      <!-- Top Icon & Title -->
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
+        <div style="width: 52px; height: 52px; border-radius: 12px; background: {{ cat.color }}18; color: {{ cat.color }}; display: flex; align-items: center; justify-content: center; font-size: 1.45rem; flex-shrink: 0;">
+          <i class="{{ cat.icon }}"></i>
+        </div>
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0;">
+            {% if current_lang == 'kn' %}{{ cat.name_kn }}{% else %}{{ cat.name_en }}{% endif %}
+          </h2>
+          <div style="font-size: 0.82rem; color: var(--primary-hover); font-weight: 500;">
+            {% if current_lang == 'kn' %}{{ cat.name_en }}{% else %}{{ cat.name_kn }}{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin-bottom: 14px; flex: 1;">
+        {% if current_lang == 'kn' %}{{ cat.description_kn }}{% else %}{{ cat.description_en }}{% endif %}
+      </p>
+
+      <!-- Typical Issues / Examples -->
+      <div style="background-color: var(--surface-muted); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 16px; border-left: 3px solid {{ cat.color }};">
+        <strong style="color: var(--text-main); display: block; margin-bottom: 4px;">
+          <i class="fa-solid fa-list-check" style="color: {{ cat.color }};"></i> Common Issues Handled:
+        </strong>
+        <span style="color: #64748b; line-height: 1.4;">
+          {% if current_lang == 'kn' %}{{ cat.examples_kn }}{% else %}{{ cat.examples_en }}{% endif %}
+        </span>
+      </div>
+
+      <!-- Department info & Total Active count -->
+      <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <span><i class="fa-solid fa-building" style="color: #94a3b8;"></i> Dept: <strong>{{ cat.dept_name or 'General Cell' }}</strong></span>
+        <span class="status-pill status-submitted" style="font-size: 0.72rem; padding: 2px 8px;">{{ cat.complaint_count }} Registered</span>
+      </div>
+
+      <!-- CTA Button to open pre-filled complaint form -->
+      <a href="{{ url_for('submit_complaint', category=cat.id) }}" class="btn btn-outline-primary" style="width: 100%; border-color: {{ cat.color }}; color: {{ cat.color }}; font-size: 0.88rem;">
+        <i class="fa-solid fa-paper-plane"></i> File {{ cat.name_en }} Complaint &rarr;
+      </a>
+
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Special Highlight Banner for Government School Infrastructure Support -->
+<div style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); border: 1px solid #c4b5fd; border-radius: var(--radius-lg); padding: 24px 30px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+  <div style="max-width: 700px;">
+    <div style="display: inline-flex; align-items: center; gap: 6px; background-color: #7c3aed; color: #ffffff; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px;">
+      <i class="fa-solid fa-star"></i> SPECIAL CIVIC FOCUS
+    </div>
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: #4c1d95; margin-bottom: 6px;">
+      Rural Government School Infrastructure Cell
+    </h3>
+    <p style="font-size: 0.88rem; color: #5b21b6; line-height: 1.5; margin: 0;">
+      Gram Panchayat Shivapura collaborates directly with the Block Education Officer (BEO) to fast-track repairs of damaged school classrooms, clean drinking water, girls toilet facilities, compound walls, and classroom electricity.
+    </p>
+  </div>
+
+  <a href="{{ url_for('submit_complaint', category=6) }}" class="btn btn-primary" style="background-color: #6d28d9; border-color: #5b21b6;">
+    <i class="fa-solid fa-school"></i> Report School Issue
+  </a>
+</div>
+
+{% endblock %}

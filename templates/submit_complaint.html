@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Complaint – Grama Seva Portal{% endblock %}
+
+{% block content %}
+
+{% if success %}
+  <!-- SUBMISSION SUCCESS DISPLAY -->
+  <div class="submission-success-card">
+    <div class="success-check-circle">
+      <i class="fa-solid fa-check"></i>
+    </div>
+
+    <span class="status-pill status-submitted" style="font-size: 0.85rem; padding: 4px 14px; margin-bottom: 12px;">
+      Complaint Registered Successfully
+    </span>
+
+    <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-top: 10px;">
+      Grievance Submitted to Gram Panchayat
+    </h2>
+
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+      Your complaint "<strong>{{ complaint_title }}</strong>" has been queued for verification by the Panchayat Development Officer (PDO).
+    </p>
+
+    <div style="margin: 24px 0 16px;">
+      <div style="font-size: 0.82rem; color: #64748b; font-weight: 600; text-transform: uppercase;">
+        Your Unique Tracking Complaint ID
+      </div>
+      <div class="complaint-id-display">
+        {{ complaint_id }}
+      </div>
+      <div style="font-size: 0.8rem; color: #64748b;">
+        <i class="fa-solid fa-bell" style="color: var(--accent-saffron);"></i> You will receive SMS & dashboard notifications as status progresses.
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 14px; margin-top: 24px; flex-wrap: wrap;">
+      <a href="{{ url_for('track', complaint_id=complaint_id) }}" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-location-crosshairs"></i> Track This Complaint Now
+      </a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg">
+        <i class="fa-solid fa-house"></i> Return to Dashboard
+      </a>
+      <a href="{{ url_for('submit_complaint') }}" class="btn btn-outline-primary btn-lg">
+        <i class="fa-solid fa-plus"></i> Submit Another Complaint
+      </a>
+    </div>
+  </div>
+
+{% else %}
+
+  <!-- COMPLAINT FORM -->
+  <div class="complaint-form-container">
+    
+    <!-- Header -->
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-file-pen" style="color: var(--primary);"></i>
+        {% if current_lang == 'kn' %}ಹೊಸ ದೂರು ಸಲ್ಲಿಸಿ{% else %}File a Civic Complaint{% endif %}
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
+        {% if current_lang == 'kn' %}
+          ಸಮಸ್ಯೆಯ ವಿವರಗಳನ್ನು ನಿಖರವಾಗಿ ಭರ್ತಿ ಮಾಡಿ. ಫೋಟೋ ಲಗತ್ತಿಸುವುದರಿಂದ ತ್ವರಿತ ಪರಿಹಾರ ಸಾಧ್ಯವಾಗುತ್ತದೆ.
+        {% else %}
+          Provide accurate details about the problem. Attaching a clear photograph helps the engineering crew locate and fix the defect promptly.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="civic-card">
+      <form action="{{ url_for('submit_complaint') }}" method="POST" enctype="multipart/form-data" id="complaintSubmissionForm">
+        
+        <!-- ROW 1: Category & Problem Type -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          
+          <!-- Category -->
+          <div class="form-group">
+            <label class="form-label" for="category_id">
+              Complaint Category <span class="required-star">*</span>
+            </label>
+            <select name="category_id" id="category_id" class="form-select" required>
+              <option value="">-- Select Category --</option>
+              {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if preselected_cat|string == cat.id|string %}selected{% endif %}>
+                  {{ cat.name_en }} ({{ cat.name_kn }})
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Specific Problem Type (dynamically populated) -->
+          <div class="form-group">
+            <label class="form-label" for="problem_type">
+              Specific Problem Type <span class="required-star">*</span>
+            </label>
+            <select name="problem_type" id="problem_type" class="form-select" required>
+              <option value="">-- Select specific issue --</option>
+              <option value="General civic defect">General civic defect</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- CONDITIONAL SECTION: GOVERNMENT SCHOOL INFRASTRUCTURE PROBLEMS -->
+        <div id="school-special-fields" class="school-special-box" style="display: none;">
+          <div class="box-tag">
+            <i class="fa-solid fa-school-flag"></i> Government School Infrastructure Details
+          </div>
+          <p style="font-size: 0.82rem; color: #5b21b6; margin-bottom: 14px;">
+            Complaints regarding government school buildings, toilets, desks, or drinking water are automatically routed to the Panchayat Education Committee and Block Education Office (BEO).
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="school_name">Government School Name <span class="required-star">*</span></label>
+              <input type="text" name="school_name" id="school_name" class="form-control" placeholder="e.g. Government Higher Primary School, Shivapura">
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="school_location">School Location / Ward</label>
+              <input type="text" name="school_location" id="school_location" class="form-control" placeholder="e.g. Near Post Office, Ward 2">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 4px;">
+            <label class="form-label" for="school_infra_type">Specific Infrastructure Defect</label>
+            <select name="school_infra_type" id="school_infra_type" class="form-select">
+              <option value="">-- Select defect type --</option>
+              <option value="Damaged classrooms or school buildings">Damaged classrooms or school buildings</option>
+              <option value="Broken or unclean school toilets">Broken or unclean school toilets (Girls/Boys)</option>
+              <option value="Lack of drinking water / defunct RO plant">Lack of drinking water / defunct RO plant</option>
+              <option value="Electricity problems / ceiling fans not working">Electricity problems / ceiling fans not working</option>
+              <option value="Broken desks and benches">Broken desks and benches</option>
+              <option value="Damaged compound walls / gates">Damaged compound walls / gates</option>
+              <option value="Poor sanitation around school premises">Poor sanitation around school premises</option>
+              <option value="Other school infrastructure defect">Other school infrastructure defect</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ROW 2: Complaint Title -->
+        <div class="form-group">
+          <label class="form-label" for="title">
+            Complaint Title (Brief Summary) <span class="required-star">*</span>
+          </label>
+          <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Pipeline burst near Anjaneya temple or 3 Streetlights not glowing" value="{{ form_data.title if form_data else '' }}" required maxlength="150">
+          <span class="form-hint">Summarize the issue clearly in one sentence.</span>
+        </div>
+
+        <!-- ROW 3: Village & Ward & Landmark -->
+        <div style="display: grid; grid-template-columns: 1fr 0.8fr 1.2fr; gap: 16px;">
+          
+          <div class="form-group">
+            <label class="form-label" for="village">Village / Habitation <span class="required-star">*</span></label>
+            <input type="text" name="village" id="village" list="villageOptions" class="form-control" placeholder="Select or type village name..." value="{{ form_data.village if form_data else (g.user['village'] if g.user else (villages[0] if villages else '')) }}" required>
+            <datalist id="villageOptions">
+              {% for v in villages %}
+                <option value="{{ v }}">{{ v }}</option>
+              {% endfor %}
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ward_no">Ward Number <span class="required-star">*</span></label>
+            <select name="ward_no" id="ward_no" class="form-select" required>
+              <option value="Ward 1" {% if form_data and form_data.ward_no == 'Ward 1' %}selected{% endif %}>Ward 1</option>
+              <option value="Ward 2" {% if form_data and form_data.ward_no == 'Ward 2' %}selected{% endif %}>Ward 2</option>
+              <option value="Ward 3" {% if form_data and form_data.ward_no == 'Ward 3' %}selected{% endif %}>Ward 3</option>
+              <option value="Ward 4" {% if form_data and form_data.ward_no == 'Ward 4' %}selected{% endif %}>Ward 4</option>
+              <option value="Ward 5" {% if form_data and form_data.ward_no == 'Ward 5' %}selected{% endif %}>Ward 5</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="landmark">Exact Location / Landmark <span class="required-star">*</span></label>
+            <input type="text" name="landmark" id="landmark" class="form-control" placeholder="e.g. Near Milk Dairy Circle or Pole No. 42" value="{{ form_data.landmark if form_data else '' }}" required>
+          </div>
+
+        </div>
+
+        <!-- ROW 4: Detailed Description -->
+        <div class="form-group">
+          <label class="form-label" for="description">
+            Detailed Problem Description <span class="required-star">*</span>
+          </label>
+          <textarea name="description" id="description" rows="4" class="form-control" placeholder="Explain the exact issue, how many days it has persisted, and how it impacts villagers..." required minlength="15">{{ form_data.description if form_data else '' }}</textarea>
+          <span class="form-hint">Please provide at least 15 characters of descriptive information.</span>
+        </div>
+
+        <!-- ROW 5: Photograph Upload Dropzone with Live Preview -->
+        <div class="form-group">
+          <label class="form-label">Upload Photograph (Site Photo Evidence)</label>
+          
+          <input type="file" name="photo" id="photo" accept="image/png, image/jpeg, image/webp" style="display: none;">
+
+          <div class="image-upload-wrapper" id="imageDropzone">
+            <div class="upload-prompt">
+              <div class="upload-icon">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <div class="upload-text">
+                Click here to browse or drag & drop a photo of the defect
+              </div>
+              <div class="upload-hint">
+                Supports JPG, PNG, WEBP (Max size: 10MB)
+              </div>
+            </div>
+
+            <!-- Image Preview Area -->
+            <div class="image-preview-container" id="imagePreviewContainer">
+              <img id="imagePreview" src="#" alt="Selected Image Preview">
+              <button type="button" class="remove-img-btn" id="removeImageBtn" title="Remove photo">&times;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 6: Contact Number & Priority -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          
+          <div class="form-group">
+            <label class="form-label" for="contact_number">Citizen Contact Number <span class="required-star">*</span></label>
+            <input type="tel" name="contact_number" id="contact_number" pattern="[0-9]{10}" class="form-control" value="{{ form_data.contact_number if form_data else g.user['mobile'] }}" required>
+            <span class="form-hint">Panchayat field team may call to verify location.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="priority">Urgency / Priority Level</label>
+            <select name="priority" id="priority" class="form-select">
+              <option value="Low">Low (General maintenance)</option>
+              <option value="Medium" selected>Medium (Standard civic issue)</option>
+              <option value="High">High (Impacting multiple households)</option>
+              <option value="Urgent">Urgent (Safety risk / Hazard / School)</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 14px; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+          <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Grievance to Panchayat
+          </button>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg">
+            Cancel
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+{% endif %}
+
+{% endblock %}

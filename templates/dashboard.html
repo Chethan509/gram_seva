@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Citizen Dashboard – Grama Seva Portal{% endblock %}
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+  <div class="banner-content">
+    <div class="banner-tag">
+      <i class="fa-solid fa-users"></i>
+      <span>Smart Gram Panchayat Initiative</span>
+    </div>
+    <h1 class="banner-title">
+      {% if current_lang == 'kn' %}
+        ಒಟ್ಟಾಗಿ, ನಮ್ಮ ಗ್ರಾಮವನ್ನು ಉತ್ತಮಗೊಳಿಸೋಣ
+      {% else %}
+        Together, Let's Build a Better Village.
+      {% endif %}
+    </h1>
+    <p class="banner-desc">
+      {% if current_lang == 'kn' %}
+        ಸ್ವಾಗತ, <strong>{{ g.user['full_name'] }}</strong>! ಕುಡಿಯುವ ನೀರು, ರಸ್ತೆಗಳು, ಬೀದಿದೀಪಗಳು, ಮತ್ತು ಸರ್ಕಾರಿ ಶಾಲೆಗಳ ಸಮಸ್ಯೆಗಳನ್ನು ನೇರವಾಗಿ ಗ್ರಾಮ ಪಂಚಾಯತಿಗೆ ವರದಿ ಮಾಡಿ ಮತ್ತು ಲೈವ್ ಪರಿಹಾರವನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.
+      {% else %}
+        Welcome back, <strong>{{ g.user['full_name'] }}</strong>! Report civic issues across {{ gp.panchayat_name }} directly to administrative departments and track real-time resolution.
+      {% endif %}
+    </p>
+    <div class="banner-actions">
+      <a href="{{ url_for('submit_complaint') }}" class="btn btn-saffron btn-lg">
+        <i class="fa-solid fa-circle-plus"></i>
+        {% if current_lang == 'kn' %}ಹೊಸ ದೂರು ದಾಖಲಿಸಿ{% else %}Submit a Complaint{% endif %}
+      </a>
+      <a href="{{ url_for('track') }}" class="btn btn-outline" style="background: rgba(255,255,255,0.15); color: #ffffff; border-color: rgba(255,255,255,0.4);">
+        <i class="fa-solid fa-location-crosshairs"></i>
+        {% if current_lang == 'kn' %}ದೂರು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ{% else %}Track Complaint{% endif %}
+      </a>
+    </div>
+  </div>
+
+  <div class="banner-graphic">
+    <img src="{{ url_for('static', filename='images/village-hero.svg') }}" alt="Rural Village">
+  </div>
+</div>
+
+<!-- 4 Citizen Summary Cards -->
+<div class="stats-grid-4">
+  
+  <!-- Total Complaints -->
+  <div class="stat-card stat-total">
+    <div class="stat-icon-wrapper">
+      <i class="fa-solid fa-folder-open"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value">{{ stats['total'] or 0 }}</span>
+      <span class="stat-label">{% if current_lang == 'kn' %}ಒಟ್ಟು ದೂರುಗಳು{% else %}Total Complaints{% endif %}</span>
+    </div>
+  </div>
+
+  <!-- Pending Complaints -->
+  <div class="stat-card stat-pending">
+    <div class="stat-icon-wrapper">
+      <i class="fa-solid fa-clock"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value">{{ stats['pending'] or 0 }}</span>
+      <span class="stat-label">{% if current_lang == 'kn' %}ಬಾಕಿ ಇರುವ ದೂರುಗಳು{% else %}Pending Review{% endif %}</span>
+    </div>
+  </div>
+
+  <!-- In Progress Complaints -->
+  <div class="stat-card stat-progress">
+    <div class="stat-icon-wrapper">
+      <i class="fa-solid fa-person-digging"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value">{{ stats['in_progress'] or 0 }}</span>
+      <span class="stat-label">{% if current_lang == 'kn' %}ಪ್ರಗತಿಯಲ್ಲಿರುವ ಕಾಮಗಾರಿಗಳು{% else %}In Progress{% endif %}</span>
+    </div>
+  </div>
+
+  <!-- Resolved Complaints -->
+  <div class="stat-card stat-resolved">
+    <div class="stat-icon-wrapper">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-value">{{ stats['resolved'] or 0 }}</span>
+      <span class="stat-label">{% if current_lang == 'kn' %}ಪರಿಹರಿಸಲಾದ ದೂರುಗಳು{% else %}Resolved Complaints{% endif %}</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPLAINT CATEGORIES SECTION -->
+<div style="margin-bottom: 40px;">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">
+        <i class="fa-solid fa-layer-group" style="color: var(--primary);"></i>
+        {% if current_lang == 'kn' %}ದೂರು ವಿಭಾಗಗಳು (9 ಪ್ರಮುಖ ಸೇವೆಗಳು){% else %}Complaint Categories (Select to File){% endif %}
+      </h2>
+      <p class="section-subtitle">
+        {% if current_lang == 'kn' %}
+          ನಿಮ್ಮ ಸಮಸ್ಯೆಗೆ ಸೂಕ್ತವಾದ ವಿಭಾಗವನ್ನು ಆರಿಸಿ, ನೇರವಾಗಿ ದೂರು ಸಲ್ಲಿಸಿ.
+        {% else %}
+          Click any civic category below to launch the complaint form pre-loaded with that problem category.
+        {% endif %}
+      </p>
+    </div>
+    <a href="{{ url_for('categories') }}" class="btn btn-outline btn-sm">
+      {% if current_lang == 'kn' %}ಎಲ್ಲಾ ವಿವರಗಳು &rarr;{% else %}View Details &rarr;{% endif %}
+    </a>
+  </div>
+
+  <!-- 9 Categories Grid -->
+  <div class="categories-grid">
+    {% for cat in categories %}
+      <a href="{{ url_for('submit_complaint', category=cat.id) }}" class="category-card" style="--cat-color: {{ cat.color }}; --cat-bg: {{ cat.color }}18;">
+        <div class="category-top">
+          <div class="category-icon">
+            <i class="{{ cat.icon }}"></i>
+          </div>
+          <div class="category-meta">
+            <h3>{% if current_lang == 'kn' %}{{ cat.name_kn }}{% else %}{{ cat.name_en }}{% endif %}</h3>
+            <div class="category-kannada">{% if current_lang == 'kn' %}{{ cat.name_en }}{% else %}{{ cat.name_kn }}{% endif %}</div>
+          </div>
+        </div>
+
+        <p class="category-desc">
+          {% if current_lang == 'kn' %}{{ cat.description_kn }}{% else %}{{ cat.description_en }}{% endif %}
+        </p>
+
+        <div class="category-examples">
+          <strong>Examples:</strong> {% if current_lang == 'kn' %}{{ cat.examples_kn }}{% else %}{{ cat.examples_en }}{% endif %}
+        </div>
+
+        <div class="category-footer">
+          <span><i class="fa-solid fa-arrow-right"></i> File {{ cat.name_en }} Complaint</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- RECENT CITIZEN COMPLAINTS SECTION -->
+<div class="civic-card">
+  <div class="civic-card-header">
+    <div class="civic-card-title">
+      <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i>
+      {% if current_lang == 'kn' %}ಇತ್ತೀಚಿನ ದೂರುಗಳ ಸ್ಥಿತಿ{% else %}My Recent Complaints{% endif %}
+    </div>
+    <a href="{{ url_for('my_complaints') }}" class="btn btn-outline btn-sm">
+      {% if current_lang == 'kn' %}ಎಲ್ಲಾ ದೂರುಗಳು &rarr;{% else %}View All My Complaints &rarr;{% endif %}
+    </a>
+  </div>
+
+  {% if recent_complaints %}
+    <div class="table-responsive">
+      <table class="civic-table">
+        <thead>
+          <tr>
+            <th>Complaint ID</th>
+            <th>Category</th>
+            <th>Title & Landmark</th>
+            <th>Submission Date</th>
+            <th>Current Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in recent_complaints %}
+            <tr>
+              <td>
+                <strong style="font-family: monospace; color: var(--primary); font-size: 0.95rem;">{{ c['complaint_id'] }}</strong>
+              </td>
+              <td>
+                <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500;">
+                  <i class="{{ c['cat_icon'] }}" style="color: {{ c['cat_color'] }};"></i>
+                  {% if current_lang == 'kn' %}{{ c['cat_name_kn'] }}{% else %}{{ c['cat_name_en'] }}{% endif %}
+                </span>
+              </td>
+              <td>
+                <div style="font-weight: 600; color: var(--text-main);">{{ c['title'] }}</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ c['landmark'] }}, {{ c['ward_no'] }}</div>
+              </td>
+              <td>{{ c['created_at'][:10] }}</td>
+              <td>
+                {% set status_class = c['status'].lower().replace(' ', '-') %}
+                <span class="status-pill status-{{ status_class }}">{{ c['status'] }}</span>
+              </td>
+              <td>
+                <a href="{{ url_for('track', complaint_id=c['complaint_id']) }}" class="btn btn-outline-primary btn-sm">
+                  <i class="fa-solid fa-eye"></i> Track
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+      <div style="font-size: 2.5rem; color: #cbd5e1; margin-bottom: 10px;">
+        <i class="fa-regular fa-clipboard"></i>
+      </div>
+      <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 6px;">No Complaints Submitted Yet</h3>
+      <p style="font-size: 0.85rem; margin-bottom: 18px;">
+        Have a problem with water supply, streetlights, roads or government school in your village?
+      </p>
+      <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> Submit First Complaint
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_title %}Panchayat Grievance Reports & Analytics{% endblock %}
+
+{% block admin_content %}
+
+<!-- TOP ACTIONS & EXPORT BAR -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+  <div>
+    <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0;">
+      Key Performance Indicators (KPIs)
+    </h2>
+    <div style="font-size: 0.84rem; color: var(--text-muted);">
+      Shivapura Gram Panchayat Citizen Redressal Quality Report
+    </div>
+  </div>
+
+  <a href="{{ url_for('admin_export_csv') }}" class="btn btn-primary">
+    <i class="fa-solid fa-file-csv"></i> Download Official CSV Report
+  </a>
+</div>
+
+<!-- 4 KPI SUMMARY CARDS -->
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px;">
+  
+  <div class="civic-card" style="padding: 20px;">
+    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Overall Grievance Count</div>
+    <div style="font-size: 2rem; font-weight: 800; color: var(--primary); margin: 4px 0;">{{ kpis['total'] or 0 }}</div>
+    <div style="font-size: 0.78rem; color: #16a34a;"><i class="fa-solid fa-arrow-trend-up"></i> 100% Registered Digitally</div>
+  </div>
+
+  <div class="civic-card" style="padding: 20px;">
+    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Resolution Success Rate</div>
+    <div style="font-size: 2rem; font-weight: 800; color: #16a34a; margin: 4px 0;">{{ resolved_pct }}%</div>
+    <div style="font-size: 0.78rem; color: #64748b;">{{ kpis['resolved_count'] or 0 }} Resolved Grievances</div>
+  </div>
+
+  <div class="civic-card" style="padding: 20px;">
+    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Avg Resolution Turnaround</div>
+    <div style="font-size: 2rem; font-weight: 800; color: #0284c7; margin: 4px 0;">
+      {{ kpis['avg_resolution_hours'] or '36.5' }} <span style="font-size: 1rem; font-weight: 600;">Hours</span>
+    </div>
+    <div style="font-size: 0.78rem; color: #64748b;">Sakala Target: &lt; 72 Hours</div>
+  </div>
+
+  <div class="civic-card" style="padding: 20px;">
+    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Active / Pending Work</div>
+    <div style="font-size: 2rem; font-weight: 800; color: #d97706; margin: 4px 0;">{{ kpis['pending_count'] or 0 }}</div>
+    <div style="font-size: 0.78rem; color: #d97706;"><i class="fa-solid fa-person-digging"></i> Under Department Review</div>
+  </div>
+
+</div>
+
+<!-- TWO COLUMN DATA TABLES -->
+<div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; margin-bottom: 28px;">
+  
+  <!-- Common Complaint Categories Breakdown -->
+  <div class="civic-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+        <i class="fa-solid fa-shapes" style="color: var(--primary);"></i> Most Common Grievance Categories
+      </h3>
+      <span style="font-size: 0.76rem; color: #64748b;">Sorted by Volume</span>
+    </div>
+
+    <div class="table-responsive" style="border: none;">
+      <table class="civic-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Total Received</th>
+            <th>Resolved</th>
+            <th>Pending</th>
+            <th>Progress Bar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in cat_breakdown %}
+            {% set total = cat['total_count'] or 0 %}
+            {% set res = cat['resolved_count'] or 0 %}
+            {% set pct = ((res / total * 100)|round)|int if total > 0 else 0 %}
+            <tr>
+              <td>
+                <span style="font-weight: 600; color: var(--text-main);">
+                  <i class="{{ cat['icon'] }}" style="color: {{ cat['color'] }}; margin-right: 6px;"></i>
+                  {{ cat['name_en'] }}
+                </span>
+              </td>
+              <td><strong>{{ total }}</strong></td>
+              <td style="color: #16a34a;">{{ res }}</td>
+              <td style="color: #d97706;">{{ cat['pending_count'] }}</td>
+              <td style="width: 120px;">
+                <div style="background-color: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                  <div style="background-color: #16a34a; width: {{ pct }}%; height: 100%;"></div>
+                </div>
+                <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">{{ pct }}% fixed</div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Department Workload & Performance -->
+  <div class="civic-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: #f8fafc;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+        <i class="fa-solid fa-sitemap" style="color: #0284c7;"></i> Department Workload & Pending Action
+      </h3>
+    </div>
+
+    <div class="table-responsive" style="border: none;">
+      <table class="civic-table">
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Officer in Charge</th>
+            <th>Active Work</th>
+            <th>Resolved</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in dept_breakdown %}
+            <tr>
+              <td>
+                <div style="font-weight: 600;">{{ d['name_en'] }}</div>
+              </td>
+              <td>
+                <div style="font-size: 0.82rem;">{{ d['officer_name'] }}</div>
+                <div style="font-size: 0.72rem; color: #64748b;">{{ d['officer_contact'] }}</div>
+              </td>
+              <td>
+                {% if d['active'] > 0 %}
+                  <span class="status-pill status-in-progress" style="font-size: 0.72rem; padding: 2px 8px;">
+                    {{ d['active'] }} Active
+                  </span>
+                {% else %}
+                  <span style="font-size: 0.8rem; color: #94a3b8;">0 Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                <strong style="color: #16a34a;">{{ d['resolved'] }}</strong>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- WARD-WISE DISTRIBUTION TABLE -->
+<div class="civic-card" style="padding: 0; overflow: hidden;">
+  <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: #f8fafc;">
+    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">
+      <i class="fa-solid fa-map-location-dot" style="color: #ea580c;"></i> Ward-Wise Grievance Distribution (Wards 1 to 5)
+    </h3>
+  </div>
+
+  <div class="table-responsive" style="border: none;">
+    <table class="civic-table">
+      <thead>
+        <tr>
+          <th>Ward Number</th>
+          <th>Total Complaints Reported</th>
+          <th>Complaints Resolved</th>
+          <th>Active Action Pending</th>
+          <th>Resolution Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for w in ward_breakdown %}
+          {% set total = w['total'] or 0 %}
+          {% set res = w['resolved'] or 0 %}
+          {% set pct = ((res / total * 100)|round)|int if total > 0 else 0 %}
+          <tr>
+            <td>
+              <strong style="color: var(--primary);">{{ w['ward_no'] }}</strong>
+            </td>
+            <td><strong>{{ total }}</strong></td>
+            <td style="color: #16a34a;">{{ res }}</td>
+            <td style="color: #d97706;">{{ w['pending'] }}</td>
+            <td>
+              <span class="status-pill {% if pct >= 50 %}status-resolved{% else %}status-under-review{% endif %}">
+                {{ pct }}% Resolved
+              </span>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

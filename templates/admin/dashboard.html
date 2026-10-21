@@ -1,0 +1,171 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_title %}Panchayat Grievance Dashboard & Analytics{% endblock %}
+
+{% block admin_content %}
+
+<!-- 6 Admin Metric Cards Grid -->
+<div class="admin-stats-grid">
+  
+  <!-- Total -->
+  <div class="admin-stat-box" style="border-top: 3px solid #2563eb;">
+    <span class="admin-stat-num" style="color: #2563eb;">{{ metrics['total'] or 0 }}</span>
+    <span class="admin-stat-title"><i class="fa-solid fa-layer-group"></i> Total Complaints</span>
+  </div>
+
+  <!-- New -->
+  <div class="admin-stat-box" style="border-top: 3px solid #0284c7;">
+    <span class="admin-stat-num" style="color: #0284c7;">{{ metrics['new_complaints'] or 0 }}</span>
+    <span class="admin-stat-title"><i class="fa-solid fa-inbox"></i> New Submitted</span>
+  </div>
+
+  <!-- Pending -->
+  <div class="admin-stat-box" style="border-top: 3px solid #f59e0b;">
+    <span class="admin-stat-num" style="color: #d97706;">{{ metrics['pending'] or 0 }}</span>
+    <span class="admin-stat-title"><i class="fa-solid fa-clock"></i> Pending Review</span>
+  </div>
+
+  <!-- In Progress -->
+  <div class="admin-stat-box" style="border-top: 3px solid #9333ea;">
+    <span class="admin-stat-num" style="color: #9333ea;">{{ metrics['in_progress'] or 0 }}</span>
+    <span class="admin-stat-title"><i class="fa-solid fa-person-digging"></i> In Progress</span>
+  </div>
+
+  <!-- Resolved -->
+  <div class="admin-stat-box" style="border-top: 3px solid #16a34a;">
+    <span class="admin-stat-num" style="color: #16a34a;">{{ metrics['resolved'] or 0 }}</span>
+    <span class="admin-stat-title"><i class="fa-solid fa-circle-check"></i> Resolved</span>
+  </div>
+
+  <!-- Overdue -->
+  <div class="admin-stat-box" style="border-top: 3px solid #dc2626;">
+    <span class="admin-stat-num" style="color: #dc2626;">{{ metrics['overdue'] or 0 }}</span>
+    <span class="admin-stat-title"><i class="fa-solid fa-triangle-exclamation"></i> Overdue (>7 Days)</span>
+  </div>
+
+</div>
+
+<!-- 4 INTERACTIVE CHART.JS CHARTS GRID (2x2) -->
+<div class="charts-grid">
+  
+  <!-- 1. Complaints by Category -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div class="chart-card-title">
+        <i class="fa-solid fa-chart-pie" style="color: var(--primary); margin-right: 6px;"></i>
+        Complaints by Civic Category
+      </div>
+      <span style="font-size: 0.78rem; color: #94a3b8;">9 Categories Distribution</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chartCategory" data-chart='{{ cat_stats|tojson }}'></canvas>
+    </div>
+  </div>
+
+  <!-- 2. Monthly Trend (Registered vs Resolved) -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div class="chart-card-title">
+        <i class="fa-solid fa-chart-column" style="color: #0284c7; margin-right: 6px;"></i>
+        Monthly Registration & Resolution Trends
+      </div>
+      <span style="font-size: 0.78rem; color: #94a3b8;">Monthly Performance</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chartMonthly" data-chart='{{ monthly_stats|tojson }}'></canvas>
+    </div>
+  </div>
+
+  <!-- 3. Ward-wise Problem Distribution -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div class="chart-card-title">
+        <i class="fa-solid fa-map-location-dot" style="color: #ea580c; margin-right: 6px;"></i>
+        Ward-wise Problem Distribution
+      </div>
+      <span style="font-size: 0.78rem; color: #94a3b8;">Wards 1 to 5</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chartWard" data-chart='{{ ward_stats|tojson }}'></canvas>
+    </div>
+  </div>
+
+  <!-- 4. Resolution Status Statistics -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div class="chart-card-title">
+        <i class="fa-solid fa-circle-notch" style="color: #16a34a; margin-right: 6px;"></i>
+        Resolution Status Breakdown
+      </div>
+      <span style="font-size: 0.78rem; color: #94a3b8;">Lifecycle Stages</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="chartStatus" data-chart='{{ status_stats|tojson }}'></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- RECENT COMPLAINTS REQUIRING ATTENTION -->
+<div class="civic-card">
+  <div class="civic-card-header">
+    <div class="civic-card-title">
+      <i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-saffron); margin-right: 8px;"></i>
+      Recent Grievances Requiring Officer Action
+    </div>
+    <a href="{{ url_for('admin_complaints') }}" class="btn btn-outline btn-sm">
+      Open Grievance Register &rarr;
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="civic-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Citizen</th>
+          <th>Category</th>
+          <th>Location</th>
+          <th>Date</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in recent_complaints %}
+          <tr>
+            <td>
+              <strong style="font-family: monospace; color: var(--primary);">{{ c['complaint_id'] }}</strong>
+            </td>
+            <td>
+              <strong>{{ c['citizen_name'] }}</strong>
+            </td>
+            <td>
+              <i class="{{ c['cat_icon'] }}" style="margin-right: 4px;"></i>
+              {{ c['cat_name_en'] }}
+            </td>
+            <td>{{ c['landmark'] }}, {{ c['ward_no'] }}</td>
+            <td>{{ c['created_at'][:10] }}</td>
+            <td>
+              <span class="priority-pill priority-{{ c['priority'].lower() }}">
+                {{ c['priority'] }}
+              </span>
+            </td>
+            <td>
+              {% set status_class = c['status'].lower().replace(' ', '-') %}
+              <span class="status-pill status-{{ status_class }}">{{ c['status'] }}</span>
+            </td>
+            <td>
+              <a href="{{ url_for('admin_complaints', search=c['complaint_id']) }}" class="btn btn-outline-primary btn-sm">
+                Manage
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

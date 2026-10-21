@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9933" />
+      <stop offset="100%" stop-color="#E65100" />
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#166534" />
+      <stop offset="100%" stop-color="#14532d" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Ring with decorative border -->
+  <circle cx="100" cy="100" r="95" fill="#FFFFFF" stroke="#166534" stroke-width="4"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="3,3"/>
+  <circle cx="100" cy="100" r="82" fill="#F0FDF4" stroke="#166534" stroke-width="1.5"/>
+
+  <!-- Tricolor Arc Accent -->
+  <path d="M 30,100 A 70,70 0 0,1 170,100" fill="none" stroke="#FF9933" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 30,100 A 70,70 0 0,0 170,100" fill="none" stroke="#138808" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Inner Crest -->
+  <circle cx="100" cy="100" r="54" fill="#FFFFFF" stroke="#166534" stroke-width="2"/>
+
+  <!-- Sprouting Grain / Village Growth Leaves -->
+  <path d="M 100,135 Q 85,115 86,95 Q 98,110 100,135 Z" fill="#15803d"/>
+  <path d="M 100,135 Q 115,115 114,95 Q 102,110 100,135 Z" fill="#166534"/>
+  <path d="M 100,140 Q 100,100 100,75" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Sun of Progress in center -->
+  <circle cx="100" cy="72" r="14" fill="#F59E0B"/>
+  <!-- Sun rays -->
+  <g stroke="#F59E0B" stroke-width="2" stroke-linecap="round">
+    <line x1="100" y1="52" x2="100" y2="46"/>
+    <line x1="100" y1="92" x2="100" y2="98"/>
+    <line x1="80" y1="72" x2="74" y2="72"/>
+    <line x1="120" y1="72" x2="126" y2="72"/>
+    <line x1="86" y1="58" x2="81" y2="53"/>
+    <line x1="114" y1="86" x2="119" y2="91"/>
+    <line x1="86" y1="86" x2="81" y2="91"/>
+    <line x1="114" y1="58" x2="119" y2="53"/>
+  </g>
+
+  <!-- Small Civic Emblem Symbol -->
+  <circle cx="100" cy="72" r="6" fill="#FFFFFF"/>
+  <circle cx="100" cy="72" r="2.5" fill="#166534"/>
+
+  <!-- Ribbon at bottom -->
+  <path d="M 45,150 L 155,150 L 145,168 L 100,162 L 55,168 Z" fill="#166534"/>
+  <text x="100" y="161" font-family="'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">GRAMA SEVA</text>
+</svg>

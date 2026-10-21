@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Help & Support – Grama Seva Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 1050px; margin: 0 auto;">
+  
+  <!-- Header -->
+  <div style="text-align: center; margin-bottom: 32px;">
+    <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+      <i class="fa-solid fa-headset" style="color: var(--primary);"></i>
+      {% if current_lang == 'kn' %}ಸಹಾಯ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಸಂಪರ್ಕ ಕೇಂದ್ರ{% else %}Help, FAQs & Citizen Support{% endif %}
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 600px; margin: 0 auto;">
+      Guidelines, frequently asked questions, and official contact channels for {{ gp.panchayat_name }}
+    </p>
+  </div>
+
+  <!-- 3 Steps Guide: How It Works -->
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 36px;">
+    
+    <div class="civic-card" style="text-align: center; padding: 28px 20px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #eff6ff; color: #2563eb; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        1
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+        File Your Grievance
+      </h3>
+      <p style="font-size: 0.86rem; color: #64748b; line-height: 1.5;">
+        Select category (e.g. Water, School, Streetlights), attach a site photograph, and provide exact landmark.
+      </p>
+    </div>
+
+    <div class="civic-card" style="text-align: center; padding: 28px 20px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #fffbeb; color: #d97706; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        2
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+        Panchayat Assignment
+      </h3>
+      <p style="font-size: 0.86rem; color: #64748b; line-height: 1.5;">
+        The Panchayat Development Officer verifies the complaint and delegates it to the designated engineer or lineman.
+      </p>
+    </div>
+
+    <div class="civic-card" style="text-align: center; padding: 28px 20px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #f0fdf4; color: #16a34a; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        3
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+        Live Tracking & Fix
+      </h3>
+      <p style="font-size: 0.86rem; color: #64748b; line-height: 1.5;">
+        Track repair stages live using your unique ID. Once solved, view official photos and engineer completion remarks.
+      </p>
+    </div>
+
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; margin-bottom: 36px;">
+    
+    <!-- LEFT: Frequently Asked Questions Accordion -->
+    <div>
+      <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 16px;">
+        <i class="fa-solid fa-circle-question" style="color: var(--primary);"></i> Frequently Asked Questions
+      </h2>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <details class="civic-card" style="padding: 18px;" open>
+          <summary style="font-weight: 600; font-size: 0.95rem; cursor: pointer; color: var(--text-main);">
+            How do I track my complaint without logging in?
+          </summary>
+          <div style="padding-top: 12px; font-size: 0.88rem; color: #475569; line-height: 1.6; border-top: 1px solid var(--border-color); margin-top: 10px;">
+            You can visit the <a href="{{ url_for('track') }}" style="font-weight: 600;">Track Status</a> page at any time and enter your unique 13-digit Complaint ID (e.g. <code>GS-2026-00101</code>) to view current stage and officer remarks.
+          </div>
+        </details>
+
+        <details class="civic-card" style="padding: 18px;">
+          <summary style="font-weight: 600; font-size: 0.95rem; cursor: pointer; color: var(--text-main);">
+            Who handles Government School infrastructure issues?
+          </summary>
+          <div style="padding-top: 12px; font-size: 0.88rem; color: #475569; line-height: 1.6; border-top: 1px solid var(--border-color); margin-top: 10px;">
+            Complaints submitted under "Government School Problems" are assigned to the <strong>Gram Panchayat Education Committee</strong> and jointly coordinated with the Taluk <strong>Block Education Officer (BEO)</strong> for grant sanction under the 15th Finance Commission or Sarva Shiksha Abhiyan funds.
+          </div>
+        </details>
+
+        <details class="civic-card" style="padding: 18px;">
+          <summary style="font-weight: 600; font-size: 0.95rem; cursor: pointer; color: var(--text-main);">
+            What is the standard time for streetlight or water repairs?
+          </summary>
+          <div style="padding-top: 12px; font-size: 0.88rem; color: #475569; line-height: 1.6; border-top: 1px solid var(--border-color); margin-top: 10px;">
+            As per the Karnataka Sakala Civic Services Guarantee guidelines, minor water leaks and streetlight fuse replacements are attended to within <strong>48 to 72 hours</strong>. Major civil works (drain reconstruction or road resurfacing) follow budget tender protocols.
+          </div>
+        </details>
+
+        <details class="civic-card" style="padding: 18px;">
+          <summary style="font-weight: 600; font-size: 0.95rem; cursor: pointer; color: var(--text-main);">
+            Why was my complaint marked as "Rejected"?
+          </summary>
+          <div style="padding-top: 12px; font-size: 0.88rem; color: #475569; line-height: 1.6; border-top: 1px solid var(--border-color); margin-top: 10px;">
+            A complaint may be closed if it concerns private civil court property disputes, or if duplicate complaints have already been registered for the same location. The exact reason is always noted in the Officer's remarks.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Official Office Contacts & Hours -->
+    <div>
+      <div class="civic-card" style="margin-bottom: 24px;">
+        <div class="civic-card-header">
+          <div class="civic-card-title">
+            <i class="fa-solid fa-building-flag" style="color: var(--primary);"></i>
+            Panchayat Office Details
+          </div>
+        </div>
+
+        <div style="font-size: 0.88rem; color: #475569; line-height: 1.6;">
+          <div style="margin-bottom: 12px;">
+            <strong style="color: var(--text-main); display: block;">Official Address:</strong>
+            {{ gp.office_address }}
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <strong style="color: var(--text-main); display: block;">Public Office Hours:</strong>
+            Monday to Friday: 10:00 AM – 5:30 PM<br>
+            Saturday: 10:00 AM – 1:30 PM (Sunday Closed)
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <strong style="color: var(--text-main); display: block;">Key Officials (Sample):</strong>
+            • <strong>Panchayat Development Officer (PDO):</strong> Ramesh Gowda (Ph: 9845012345)<br>
+            • <strong>Panchayat President (Adhyaksha):</strong> Smt. Savithramma<br>
+            • <strong>Water Supply Lineman:</strong> Suresh K. (Ph: 9845011001)
+          </div>
+
+          <div style="background-color: #fffbeb; border: 1px solid #fde68a; padding: 10px; border-radius: var(--radius-sm); font-size: 0.78rem; color: #92400e;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <em>Note: The above contact details are representative sample data provided for demonstration purposes.</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citizen Feedback Card -->
+      {% if g.user %}
+        <div class="civic-card">
+          <div class="civic-card-header">
+            <div class="civic-card-title">
+              <i class="fa-solid fa-star" style="color: var(--accent-saffron);"></i>
+              Citizen Service Feedback
+            </div>
+          </div>
+
+          <form action="{{ url_for('submit_feedback') }}" method="POST">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">Rate Gram Panchayat Response</label>
+              <select name="rating" class="form-select" required>
+                <option value="5">⭐⭐⭐⭐⭐ Excellent (5 Stars)</option>
+                <option value="4" selected>⭐⭐⭐⭐ Good (4 Stars)</option>
+                <option value="3">⭐⭐⭐ Satisfactory (3 Stars)</option>
+                <option value="2">⭐⭐ Needs Improvement (2 Stars)</option>
+                <option value="1">⭐ Poor Response (1 Star)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">Reference Complaint ID (Optional)</label>
+              <input type="text" name="complaint_id" class="form-control" placeholder="e.g. GS-2026-00101">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">Comments / Suggestions</label>
+              <textarea name="comments" rows="3" class="form-control" placeholder="Share your experience with Grama Seva portal..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+              Submit Feedback
+            </button>
+          </form>
+        </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

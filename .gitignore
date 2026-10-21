@@ -1,0 +1,26 @@
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE / Editor configuration
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Generated
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs
+*.log
